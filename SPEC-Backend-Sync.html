@@ -1,0 +1,77 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Spec Backend Sync</title><style>body{font-family:system-ui,sans-serif;max-width:840px;margin:40px auto;padding:0 20px;line-height:1.6;color:#16233E}pre{background:#F5F7FA;padding:12px;border-radius:8px;overflow-x:auto}table{border-collapse:collapse;width:100%;margin:16px 0}th,td{border:1px solid #D9E0EB;padding:8px 10px;text-align:left;font-size:14px}th{background:#F0F3F9}code{background:#F0F3F9;padding:2px 5px;border-radius:4px}h1,h2{color:#0B1F44}</style></head><body><h1>Spec technique — Backend partagé pour "Portefeuille initiatives IA"</h1>
+
+<h2>Objectif</h2>
+<p>Remplacer le stockage <code>localStorage</code> (propre à chaque navigateur) par une API + base de données partagée, pour que les modifications d'un utilisateur soient visibles par tous.</p>
+
+<h2>État actuel (à remplacer)</h2>
+<p>Tout est dans <code>data.js</code>, persisté via <code>localStorage</code> sous 3 clés :</p>
+
+<table><tr><th>Clé localStorage</th><th>Contenu</th><th>Fonctions actuelles</th></tr><tr><td><code>ia-portfolio-data-v1</code></td><td>Liste des initiatives</td><td><code>loadData()</code>, <code>saveData(list)</code></td></tr><tr><td><code>ia-portfolio-schema-v3</code></td><td>Schéma du portefeuille (catégories + ordre des initiatives, pour le drag&drop)</td><td><code>loadPortfolioSchema()</code>, <code>savePortfolioSchema(schema)</code></td></tr><tr><td><code>ia-portfolio-custom-widgets-v1</code></td><td>Widgets graphiques personnalisés du dashboard</td><td><code>loadCustomWidgets()</code>, <code>saveCustomWidgets(list)</code></td></tr></table>
+<p>Le composant appelle ces fonctions au chargement (<code>componentDidMount</code>) et à chaque modification (édition de fiche, drag&drop, ajout/suppression de légende, etc.).</p>
+
+<h2>Modèle de données — Initiative (objet JS actuel, à répliquer en base)</h2>
+<pre>{
+<p>  "id": "ini-xxxxxxx",</p>
+<p>  "macroDomain": "DWP - Platforms",</p>
+<p>  "subDomain": "string",</p>
+<p>  "editor": "string",</p>
+<p>  "product": "string",</p>
+<p>  "tool": "string",</p>
+<p>  "model": "string",</p>
+<p>  "status": "Déployé | En test | À tester | Non évalué",</p>
+<p>  "souverainete": "Souverain | Non souverain | Interne | À définir",</p>
+<p>  "marker": { "symbol": "string", "color": "#hex" },</p>
+<p>  "legendTags": ["legend-deployed", "..."],</p>
+<p>  "producedInFrance": false,</p>
+<p>  "wantsFranceProduction": false,</p>
+<p>  "description": {</p>
+<p>    "description": "string", "useCase": "string", "businessValue": "string",</p>
+<p>    "targetPopulation": "string", "comments": "string"</p>
+<p>  },</p>
+<p>  "governance": {</p>
+<p>    "responsible": "string", "updateDate": "YYYY-MM-DD", "source": "string",</p>
+<p>    "dependencies": "string", "prerequisites": "string"</p>
+<p>  },</p>
+<p>  "prioritization": { "moscow": "Must|Should|Could|Won't|À qualifier", "level": "L1-L4" },</p>
+<p>  "risksData": { "level": "Faible|Moyen|Élevé|À évaluer", "blockers": ["string"], "watchPoints": ["string"] },</p>
+<p>  "roi": { "inputs": { "U":0,"T":0,"M":0,"S":0,"H":0,"R":0,"L":0,"D":0,"I":0,"C":0,"SUP":0 } | null, "calcDate": "YYYY-MM-DD | null" },</p>
+<p>  "documentation": { "items": [] }</p>
+<p>}</p>
+<p></pre></p>
+
+<p>Le schéma de portefeuille (<code>schema</code>) est un tableau de catégories :</p>
+<pre>[{ "id": "cat-id", "title": "DWP - Platforms", "subtitle": "string", "items": ["ini-id-1", "ini-id-2"] }]
+<p></pre></p>
+
+<p>Et <code>schemaLegend</code> (liste de légendes, actuellement en mémoire, à faire persister aussi) :</p>
+<pre>[{ "id": "legend-deployed", "title": "Déployées", "symbol": "line-solid", "color": "#2454C7" }]
+<p></pre></p>
+
+<h2>Endpoints à créer</h2>
+
+<table><tr><th>Méthode</th><th>Route</th><th>Usage</th></tr><tr><td>GET</td><td><code>/api/initiatives</code></td><td>Charger toutes les initiatives</td></tr><tr><td>POST</td><td><code>/api/initiatives</code></td><td>Créer une initiative</td></tr><tr><td>PUT</td><td><code>/api/initiatives/:id</code></td><td>Mettre à jour une initiative (statut, ROI, légendes assignées, etc.)</td></tr><tr><td>DELETE</td><td><code>/api/initiatives/:id</code></td><td>Supprimer une initiative</td></tr><tr><td>GET</td><td><code>/api/schema</code></td><td>Charger le schéma du portefeuille (catégories + ordre)</td></tr><tr><td>PUT</td><td><code>/api/schema</code></td><td>Sauvegarder le schéma complet (après drag&drop)</td></tr><tr><td>GET</td><td><code>/api/legend</code></td><td>Charger la liste des légendes</td></tr><tr><td>PUT</td><td><code>/api/legend</code></td><td>Sauvegarder la liste des légendes (ajout/suppression/édition)</td></tr><tr><td>GET</td><td><code>/api/widgets</code></td><td>Charger les widgets personnalisés du dashboard</td></tr><tr><td>PUT</td><td><code>/api/widgets</code></td><td>Sauvegarder les widgets personnalisés</td></tr></table>
+<p>Toutes les routes <code>PUT</code>/<code>POST</code>/<code>DELETE</code> doivent renvoyer l'objet ou la liste à jour, pour que le front resynchronise son état local.</p>
+
+<h2>Rafraîchissement multi-utilisateurs</h2>
+<p>Deux options, par complexité croissante :</p>
+<p>1. **Polling simple** (recommandé pour démarrer) : le front recharge <code>/api/initiatives</code>, <code>/api/schema</code>, <code>/api/legend</code> toutes les 5-10 secondes via <code>setInterval</code>, et fusionne avec l'état local.</p>
+<p>2. **Temps réel** : ajouter un WebSocket (ou Server-Sent Events) qui pousse un événement <code>updated</code> à tous les clients connectés dès qu'une route d'écriture est appelée ; le front réagit en rechargeant les données concernées.</p>
+
+<h2>Changements côté front (<code>data.js</code>)</h2>
+<p>Remplacer chaque paire <code>load*</code>/<code>save*</code> par des équivalents <code>fetch()</code> :</p>
+<pre>export async function loadData() {
+<p>  const res = await fetch('/api/initiatives');</p>
+<p>  return res.json();</p>
+<p>}</p>
+<p>export async function saveData(initiatives) {</p>
+<p>  // à remplacer par des PUT/POST/DELETE unitaires par initiative modifiée,</p>
+<p>  // plutôt qu'un renvoi de la liste complète, pour éviter les écrasements concurrents</p>
+<p>}</p>
+<p></pre></p>
+<p>Point d'attention : le code actuel appelle <code>saveData(fullList)</code> à chaque modification (renvoi de la liste entière). En passant à une API partagée, il vaut mieux passer à des appels unitaires (<code>PUT /api/initiatives/:id</code> avec uniquement le patch) pour éviter qu'un utilisateur n'écrase les changements d'un autre survenus entre temps.</p>
+
+<h2>Déploiement GitLab interne</h2>
+<p>- Repo front (ce fichier) : GitLab Pages, build statique.</p>
+<p>- Repo backend : API + connexion DB, déployé sur un serveur interne (CI/CD GitLab classique : build → test → deploy).</p>
+<p>- Configurer CORS sur l'API pour autoriser l'origine du front (URL GitLab Pages).</p>
+</body></html>

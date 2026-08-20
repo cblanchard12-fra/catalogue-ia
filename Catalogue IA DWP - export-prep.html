@@ -1,0 +1,2609 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="ext-resource-dependency" content="./data.js" data-resource-id="dataModule" />
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail" data-bg-color="#0B1F44">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#0B1F44"/>
+    <circle cx="600" cy="400" r="180" fill="none" stroke="#2454C7" stroke-width="24"/>
+    <path d="M520 400 L580 460 L700 340" fill="none" stroke="#FFFFFF" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  body { margin: 0; background: #F4F6F9; }
+
+
+
+
+
+
+
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #C7D0DE; border-radius: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  a { color: #2454C7; }
+  a:hover { color: #1B3E9C; }
+
+
+
+
+
+
+</style>
+</helmet>
+
+<sc-if value="{{ notReady }}" hint-placeholder-val="{{ true }}">
+  <div style="height:100vh;display:flex;align-items:center;justify-content:center;background:#F4F6F9;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:#5C6B84;font-size:15px">
+    Chargement du portefeuille…
+  </div>
+</sc-if>
+
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;height:100vh;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:#16233E;background:#F4F6F9">
+
+  <!-- SIDEBAR -->
+  <div style="width:264px;flex-shrink:0;background:#0B1F44;color:#FFFFFF;display:flex;flex-direction:column;padding:28px 18px;box-sizing:border-box">
+    <div style="padding:0 10px 24px 10px;border-bottom:1px solid rgba(255,255,255,0.12);margin-bottom:20px">
+      <div style="font-size:17px;font-weight:700;letter-spacing:0.2px">Catalogue IA DWP</div>
+      <div style="font-size:12.5px;color:#93A3C4;margin-top:4px">Portefeuille & pilotage des initiatives IA</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:2px;flex:1">
+      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="6">
+        <div onClick="{{ item.onClick }}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;background:{{ item.bg }};border-left:3px solid {{ item.accent }}">
+          <div style="width:8px;height:8px;border-radius:50%;background:{{ item.dot }};flex-shrink:0"></div>
+          <div style="font-size:13.5px;font-weight:{{ item.weight }};color:{{ item.color }}">{{ item.label }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div onClick="{{ onNewInitiative }}" style="margin-top:16px;padding:11px 14px;border-radius:8px;background:#2454C7;color:#FFFFFF;font-size:13.5px;font-weight:600;text-align:center;cursor:pointer">
+      + Nouvelle initiative
+    </div>
+
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.10);text-align:center">
+      <div style="font-size:10px;color:#5A6D95;letter-spacing:0.4px">Propulsé par</div>
+      <div style="font-size:13px;font-weight:700;color:#8FB0F5;letter-spacing:1.5px;margin-top:2px">ATOS</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div style="flex:1;overflow-y:auto;padding:36px 44px 60px 44px;box-sizing:border-box">
+
+    <!-- ================= DASHBOARD ================= -->
+    <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Dashboard exécutif" style="max-width:1280px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;gap:16px">
+          <div>
+            <div style="font-size:24px;font-weight:700;color:#0B1F44">Dashboard exécutif</div>
+            <div style="font-size:13.5px;color:#5C6B84;margin-top:4px">Vue d'ensemble du portefeuille — {{ todayLabel }}</div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:stretch;flex-shrink:0">
+            <div onClick="{{ onOpenDetailedDashboard }}" style="background:#F0F3F9;border-radius:10px;padding:10px 18px;text-align:right;cursor:pointer;display:flex;flex-direction:column;justify-content:center">
+              <div style="font-size:12.5px;font-weight:700;color:#2454C7">Dashboard détaillé →</div>
+            </div>
+            <div style="background:#0B1F44;border-radius:10px;padding:10px 18px;text-align:right">
+              <div style="font-size:10.5px;color:#9FB3D9;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Total initiatives</div>
+              <div style="font-size:22px;font-weight:800;color:#FFFFFF;line-height:1.2">{{ totalCount }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Schéma portefeuille -->
+        <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:20px;margin-bottom:24px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:#0B1F44">Initiatives et portfolio IA</div>
+              <div style="font-size:12px;color:#8592A8;margin-top:2px">Vue synthétique par catégorie d'agents</div>
+            </div>
+            <div onClick="{{ onToggleSchemaEditor }}" style="width:32px;height:32px;border-radius:8px;background:#F0F3F9;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" title="Modifier le schéma">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5C6B84" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
+            </div>
+          </div>
+
+          <sc-if value="{{ schemaNotEditing }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;width:100%;box-sizing:border-box;overflow:hidden;position:relative">
+              <div style="font-size:10.5px;color:#8592A8;margin-bottom:10px">Glissez une initiative vers une autre catégorie pour la déplacer · clic droit pour la dupliquer ailleurs</div>
+              <sc-for list="{{ schemaCategories }}" as="cat" hint-placeholder-count="5">
+                <div onDragOver="{{ cat.onDragOver }}" onDrop="{{ cat.onDrop }}" style="display:flex;gap:18px;align-items:flex-start;padding:13px 0;border-bottom:1px solid #EEF1F5;width:100%;box-sizing:border-box;background:{{ cat.dropBg }};border-radius:8px;transition:background 0.1s">
+                  <div style="width:230px;flex-shrink:0">
+                    <div style="font-size:12.5px;font-weight:700;color:#0B1F44;line-height:1.3">{{ cat.title }}</div>
+                    <div style="font-size:10.5px;color:#8592A8;margin-top:2px;line-height:1.3">{{ cat.subtitle }}</div>
+                  </div>
+                  <div style="flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:8px;min-height:28px">
+                    <sc-for list="{{ cat.items }}" as="it" hint-placeholder-count="2">
+                      <div draggable="{{ true }}" onDragStart="{{ it.onDragStart }}" onDragEnd="{{ it.onDragEnd }}" onContextMenu="{{ it.onContextMenu }}" onClick="{{ it.onOpen }}" style="display:flex;align-items:center;gap:6px;padding:5px 11px 5px 8px;border-radius:20px;background:{{ it.chipBg }};border:{{ it.chipBorder }};cursor:grab;max-width:220px;opacity:{{ it.dragOpacity }}">
+                        <sc-if value="{{ it.showFrance }}" hint-placeholder-val="{{ false }}">
+                          <svg width="14" height="10" viewBox="0 0 15 10" style="flex-shrink:0;border-radius:2px" title="Produit en France">
+                            <rect x="0" y="0" width="5" height="10" fill="#0055A4"></rect>
+                            <rect x="5" y="0" width="5" height="10" fill="#FFFFFF"></rect>
+                            <rect x="10" y="0" width="5" height="10" fill="#EF4135"></rect>
+                          </svg>
+                        </sc-if>
+                        <sc-if value="{{ it.showWantsFrance }}" hint-placeholder-val="{{ false }}">
+                          <span style="font-size:12px;color:#B9770E;flex-shrink:0" title="Produit en global, à faire produire en France aussi">★</span>
+                        </sc-if>
+                        <sc-for list="{{ it.legendBadges }}" as="lgb" hint-placeholder-count="0">
+                          <span dangerouslySetInnerHTML="{{ lgb.preview }}" title="{{ lgb.title }}" style="flex-shrink:0"></span>
+                        </sc-for>
+                        <span style="font-size:11.5px;font-weight:600;color:#16233E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.product }}</span>
+                      </div>
+                    </sc-for>
+                    <sc-if value="{{ cat.noItems }}" hint-placeholder-val="{{ false }}"><div style="font-size:11.5px;color:#B0B9C9">Aucune initiative</div></sc-if>
+                  </div>
+                </div>
+              </sc-for>
+              <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-top:14px;padding-top:14px">
+                <sc-for list="{{ schemaLegendView }}" as="lg" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:7px">
+                    <span dangerouslySetInnerHTML="{{ lg.preview }}" style="flex-shrink:0"></span>
+                    <span style="font-size:11px;color:#5C6B84">{{ lg.title }}</span>
+                  </div>
+                </sc-for>
+              </div>
+
+              <sc-if value="{{ itemMenuOpen }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ onCloseItemMenu }}" style="position:fixed;inset:0;z-index:99"></div>
+                <div style="position:fixed;left:{{ itemMenuX }}px;top:{{ itemMenuY }}px;background:#FFFFFF;border:1px solid #E2E6ED;border-radius:10px;box-shadow:0 8px 28px rgba(11,31,68,0.18);padding:6px;z-index:100;min-width:220px">
+                  <div style="font-size:10.5px;font-weight:700;color:#8592A8;padding:6px 10px 4px 10px;text-transform:uppercase;letter-spacing:0.03em">Dupliquer dans…</div>
+                  <sc-for list="{{ itemMenuOptions }}" as="opt" hint-placeholder-count="4">
+                    <div onClick="{{ opt.onDuplicate }}" style="padding:8px 10px;border-radius:6px;font-size:12.5px;color:#16233E;cursor:pointer" style-hover="background:#F0F3F9">{{ opt.title }}</div>
+                  </sc-for>
+                  <sc-if value="{{ itemMenuNoOptions }}" hint-placeholder-val="{{ false }}"><div style="padding:8px 10px;font-size:12px;color:#B0B9C9">Déjà présente dans toutes les catégories</div></sc-if>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ schemaEditing }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <sc-for list="{{ schemaDraftCategories }}" as="cat" hint-placeholder-count="5">
+                <div style="border:1px solid #E2E6ED;border-radius:10px;padding:14px">
+                  <div style="display:flex;gap:10px;margin-bottom:10px">
+                    <input type="text" placeholder="Titre de la catégorie" value="{{ cat.title }}" onChange="{{ cat.onTitle }}" style="flex:1;padding:8px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:12.5px;font-weight:700;font-family:inherit"/>
+                    <input type="text" placeholder="Sous-titre" value="{{ cat.subtitle }}" onChange="{{ cat.onSubtitle }}" style="flex:1;padding:8px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:12.5px;font-family:inherit"/>
+                    <div onClick="{{ cat.onDeleteCategory }}" style="padding:8px 12px;border-radius:7px;background:#FBEAEA;color:#C23B3B;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap">Supprimer</div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
+                    <sc-for list="{{ cat.items }}" as="it" hint-placeholder-count="2">
+                      <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#F7F9FC;border-radius:7px">
+                        <div style="font-size:12px;color:#16233E">{{ it.product }} <span style="color:#8592A8">· {{ it.editor }}</span></div>
+                        <div onClick="{{ it.onRemove }}" style="font-size:11px;font-weight:700;color:#C23B3B;cursor:pointer;padding:2px 8px">×</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <div style="display:flex;gap:8px">
+                    <select value="{{ cat.addValue }}" onChange="{{ cat.onAddChange }}" style="flex:1;padding:7px 8px;border:1px solid #D9E0EB;border-radius:7px;font-size:12px;font-family:inherit">
+                      <option value="">+ Ajouter une initiative…</option>
+                      <sc-for list="{{ cat.availableToAdd }}" as="o" hint-placeholder-count="3"><option value="{{ o.id }}">{{ o.product }}</option></sc-for>
+                    </select>
+                  </div>
+                </div>
+              </sc-for>
+
+              <div style="display:flex;gap:10px">
+                <div onClick="{{ onAddSchemaCategory }}" style="padding:9px 16px;border-radius:8px;background:#F0F3F9;color:#2454C7;font-size:12.5px;font-weight:700;cursor:pointer">+ Nouvelle catégorie</div>
+                <div style="flex:1"></div>
+                <div onClick="{{ onSaveSchema }}" style="padding:9px 18px;border-radius:8px;background:#2454C7;color:#FFFFFF;font-size:12.5px;font-weight:700;cursor:pointer">Enregistrer</div>
+                <div onClick="{{ onCancelSchemaEdit }}" style="padding:9px 18px;border-radius:8px;background:#EEF1F5;color:#5C6B84;font-size:12.5px;font-weight:700;cursor:pointer">Annuler</div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:16px;margin-bottom:16px">
+          <sc-for list="{{ kpiCards }}" as="k" hint-placeholder-count="1">
+            <div onClick="{{ k.onOpen }}" style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:18px;cursor:pointer">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                <div style="width:34px;height:34px;border-radius:9px;background:{{ k.iconBg }};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <span dangerouslySetInnerHTML="{{ k.iconSvg }}" style="display:flex"></span>
+                </div>
+                <div style="font-size:12px;color:#5C6B84;font-weight:600">{{ k.label }}</div>
+              </div>
+              <div style="font-size:28px;font-weight:800;color:{{ k.color }};line-height:1">{{ k.value }}</div>
+              <div style="margin-top:14px;padding-top:12px;border-top:1px solid #F0F2F6;display:flex;flex-direction:column;gap:7px">
+                <sc-for list="{{ k.subStats }}" as="sub" hint-placeholder-count="3">
+                  <div style="display:flex;justify-content:space-between;font-size:12px">
+                    <span style="color:#8592A8">{{ sub.label }}</span>
+                    <span style="font-weight:700;color:{{ sub.color }}">{{ sub.value }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+
+          <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:20px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+              <div style="font-size:13.5px;font-weight:700;color:#0B1F44">Trajectoire de valorisation ROI</div>
+              <div style="display:flex;gap:14px">
+                <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#5C6B84"><span style="width:14px;height:2px;background:#1E8E5A;display:inline-block"></span>Valeur cumulée</div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#5C6B84"><span style="width:14px;height:2px;background:#C23B3B;display:inline-block"></span>Coût cumulé</div>
+              </div>
+            </div>
+            <sc-if value="{{ hasTrend }}" hint-placeholder-val="{{ false }}">
+              <svg viewBox="0 0 460 170" style="width:100%;height:170px">
+                <polygon points="{{ trendValueArea }}" fill="#1E8E5A" opacity="0.08"></polygon>
+                <polyline points="{{ trendCostPoints }}" fill="none" stroke="#C23B3B" stroke-width="2.5"></polyline>
+                <polyline points="{{ trendValuePoints }}" fill="none" stroke="#1E8E5A" stroke-width="2.5"></polyline>
+              </svg>
+              <div style="display:flex;justify-content:space-between;margin-top:6px">
+                <sc-for list="{{ trendLabels }}" as="lb" hint-placeholder-count="4"><span style="font-size:10px;color:#8592A8">{{ lb }}</span></sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ noTrend }}" hint-placeholder-val="{{ true }}">
+              <div style="height:170px;display:flex;align-items:center;justify-content:center;text-align:center;color:#B0B9C9;font-size:12.5px;padding:0 20px">Calculez le ROI d'au moins 2 initiatives pour voir apparaître la trajectoire de valorisation du portefeuille.</div>
+            </sc-if>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px">
+          <div onClick="{{ onOpenDonutWidget }}" style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:20px;cursor:pointer">
+            <div style="font-size:13.5px;font-weight:700;color:#0B1F44;margin-bottom:14px">Répartition par statut de déploiement</div>
+            <div style="display:flex;align-items:center;gap:22px">
+              <div style="position:relative;width:150px;height:150px;flex-shrink:0">
+                <svg viewBox="0 0 150 150" style="width:150px;height:150px;transform:rotate(-90deg)">
+                  <sc-for list="{{ donutSegments }}" as="seg" hint-placeholder-count="4">
+                    <circle cx="75" cy="75" r="58" fill="none" stroke="{{ seg.color }}" stroke-width="20" stroke-dasharray="{{ seg.dasharray }}" stroke-dashoffset="{{ seg.dashoffset }}"></circle>
+                  </sc-for>
+                </svg>
+                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                  <div style="font-size:24px;font-weight:800;color:#0B1F44">{{ totalCount }}</div>
+                  <div style="font-size:10px;color:#8592A8">Total</div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px;flex:1">
+                <sc-for list="{{ statusBars }}" as="b" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:8px;font-size:12.5px">
+                    <span style="width:9px;height:9px;border-radius:50%;background:{{ b.color }};flex-shrink:0"></span>
+                    <span style="color:#333F55;flex:1">{{ b.label }}</span>
+                    <span style="font-weight:700;color:#16233E">{{ b.count }}</span>
+                    <span style="color:#8592A8;width:36px;text-align:right">{{ b.pct }}%</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:20px">
+            <div style="font-size:13.5px;font-weight:700;color:#0B1F44;margin-bottom:14px">OKR</div>
+            <sc-for list="{{ okrItems }}" as="item" hint-placeholder-count="4">
+              <div style="display:flex;gap:8px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #F0F2F6">
+                <div style="flex:1;min-width:0">
+                  <input type="text" value="{{ item.title }}" onChange="{{ item.onTitle }}" style="width:100%;box-sizing:border-box;border:none;background:transparent;font-size:12.5px;font-weight:700;color:#16233E;padding:2px 0;font-family:inherit"/>
+                  <input type="text" value="{{ item.description }}" onChange="{{ item.onDescription }}" style="width:100%;box-sizing:border-box;border:none;background:transparent;font-size:12px;color:#5C6B84;padding:2px 0;font-family:inherit"/>
+                </div>
+                <div onClick="{{ item.onDelete }}" style="width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#B0B9C9;font-size:14px;font-weight:700;cursor:pointer;flex-shrink:0" title="Supprimer">×</div>
+              </div>
+            </sc-for>
+            <div onClick="{{ onAddOkrItem }}" style="margin-top:12px;padding:9px 14px;border-radius:8px;background:#F0F3F9;color:#2454C7;font-size:12px;font-weight:700;cursor:pointer;text-align:center">+ Ajouter un élément</div>
+          </div>
+
+          <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:20px">
+            <div style="font-size:13.5px;font-weight:700;color:#0B1F44;margin-bottom:14px">Call to action</div>
+            <sc-for list="{{ ctaItems }}" as="item" hint-placeholder-count="3">
+              <div style="display:flex;gap:8px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #F0F2F6">
+                <div style="flex:1;min-width:0">
+                  <input type="text" value="{{ item.title }}" onChange="{{ item.onTitle }}" style="width:100%;box-sizing:border-box;border:none;background:transparent;font-size:12.5px;font-weight:700;color:#16233E;padding:2px 0;font-family:inherit"/>
+                  <input type="text" value="{{ item.description }}" onChange="{{ item.onDescription }}" style="width:100%;box-sizing:border-box;border:none;background:transparent;font-size:12px;color:#5C6B84;padding:2px 0;font-family:inherit"/>
+                </div>
+                <div onClick="{{ item.onGo }}" style="width:26px;height:26px;border-radius:7px;background:#F0F3F9;display:flex;align-items:center;justify-content:center;color:#2454C7;font-size:14px;font-weight:700;cursor:pointer;flex-shrink:0" title="Ouvrir le catalogue">→</div>
+                <div onClick="{{ item.onDelete }}" style="width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#B0B9C9;font-size:14px;font-weight:700;cursor:pointer;flex-shrink:0" title="Supprimer">×</div>
+              </div>
+            </sc-for>
+            <div onClick="{{ onAddCtaItem }}" style="margin-top:12px;padding:9px 14px;border-radius:8px;background:#F0F3F9;color:#2454C7;font-size:12px;font-weight:700;cursor:pointer;text-align:center">+ Ajouter une action</div>
+          </div>
+        </div>
+
+        <!-- ================= CUSTOM WIDGETS ================= -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px">
+          <sc-for list="{{ customWidgets }}" as="w" hint-placeholder-count="0">
+            <div onClick="{{ w.onOpen }}" style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:18px;cursor:pointer;position:relative">
+              <div onClick="{{ w.onDelete }}" style="position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#B0B9C9;font-size:14px;font-weight:700" title="Supprimer ce graphique">×</div>
+              <div style="font-size:13px;font-weight:700;color:#0B1F44;margin-bottom:4px;padding-right:20px">{{ w.title }}</div>
+              <div style="font-size:10.5px;color:#8592A8;margin-bottom:14px">{{ w.subtitle }}</div>
+
+              <sc-if value="{{ w.isKpi }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:30px;font-weight:800;color:{{ w.mainColor }}">{{ w.kpiValue }}</div>
+              </sc-if>
+              <sc-if value="{{ w.isDonut }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:16px">
+                  <div style="position:relative;width:100px;height:100px;flex-shrink:0">
+                    <svg viewBox="0 0 100 100" style="width:100px;height:100px;transform:rotate(-90deg)">
+                      <sc-for list="{{ w.segments }}" as="seg" hint-placeholder-count="3">
+                        <circle cx="50" cy="50" r="38" fill="none" stroke="{{ seg.color }}" stroke-width="14" stroke-dasharray="{{ seg.dasharray }}" stroke-dashoffset="{{ seg.dashoffset }}"></circle>
+                      </sc-for>
+                    </svg>
+                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#0B1F44">{{ w.total }}</div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:6px">
+                    <sc-for list="{{ w.buckets }}" as="b" hint-placeholder-count="3">
+                      <div style="display:flex;align-items:center;gap:6px;font-size:11px">
+                        <span style="width:8px;height:8px;border-radius:50%;background:{{ b.color }}"></span>
+                        <span style="color:#333F55">{{ b.label }}</span>
+                        <span style="font-weight:700;color:#16233E">{{ b.count }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ w.isBar }}" hint-placeholder-val="{{ false }}">
+                <sc-for list="{{ w.buckets }}" as="b" hint-placeholder-count="3">
+                  <div style="margin-bottom:9px">
+                    <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#333F55;margin-bottom:3px">
+                      <span>{{ b.label }}</span><span style="font-weight:700">{{ b.count }}</span>
+                    </div>
+                    <div style="height:6px;background:#EEF1F5;border-radius:3px;overflow:hidden">
+                      <div style="height:100%;background:{{ b.color }};width:{{ b.pct }}%"></div>
+                    </div>
+                  </div>
+                </sc-for>
+              </sc-if>
+            </div>
+          </sc-for>
+
+          <div onClick="{{ onOpenWidgetForm }}" style="background:#F7F9FC;border:2px dashed #D9E0EB;border-radius:12px;padding:18px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:120px">
+            <div style="width:34px;height:34px;border-radius:50%;background:#FFFFFF;border:1px solid #D9E0EB;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:400;color:#2454C7">+</div>
+            <div style="font-size:12.5px;font-weight:600;color:#5C6B84">Nouveau graphique</div>
+          </div>
+        </div>
+
+        <!-- ================= WIDGET CREATION FORM ================= -->
+        <sc-if value="{{ widgetFormOpen }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ onCloseWidgetForm }}" style="position:fixed;inset:0;background:rgba(11,31,68,0.45);z-index:199;display:flex;align-items:center;justify-content:center;padding:20px">
+            <div onClick="{{ stopPropagation }}" style="background:#FFFFFF;border-radius:14px;padding:26px;width:100%;max-width:420px;max-height:88vh;overflow-y:auto">
+              <div style="font-size:16px;font-weight:700;color:#0B1F44;margin-bottom:16px">Nouveau graphique de synthèse</div>
+
+              <div style="margin-bottom:14px">
+                <div style="font-size:11.5px;color:#8592A8;margin-bottom:5px">Titre</div>
+                <input type="text" value="{{ widgetForm.title }}" onChange="{{ onWidgetFormTitle }}" placeholder="Ex : Répartition par éditeur" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit"/>
+              </div>
+
+              <div style="margin-bottom:14px">
+                <div style="font-size:11.5px;color:#8592A8;margin-bottom:5px">Format</div>
+                <div style="display:flex;gap:8px">
+                  <sc-for list="{{ widgetFormatOptions }}" as="fo" hint-placeholder-count="3">
+                    <div onClick="{{ fo.onSelect }}" style="flex:1;text-align:center;padding:9px 6px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:{{ fo.bg }};color:{{ fo.fg }};border:1px solid {{ fo.border }}">{{ fo.label }}</div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="margin-bottom:14px">
+                <div style="font-size:11.5px;color:#8592A8;margin-bottom:7px">Répartir par</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-for list="{{ widgetDimensionOptions }}" as="o" hint-placeholder-count="6">
+                    <div onClick="{{ o.onSelect }}" style="padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:{{ o.bg }};color:{{ o.fg }};border:1px solid {{ o.border }}">{{ o.label }}</div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="margin-bottom:18px">
+                <div style="font-size:11.5px;color:#8592A8;margin-bottom:6px">Couleur</div>
+                <div style="display:flex;gap:8px">
+                  <sc-for list="{{ widgetColorOptions }}" as="c" hint-placeholder-count="6">
+                    <div onClick="{{ c.onSelect }}" style="width:28px;height:28px;border-radius:50%;background:{{ c.swatch }};cursor:pointer;box-shadow:{{ c.selectedShadow }}"></div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:10px">
+                <div onClick="{{ onSaveWidget }}" style="flex:1;padding:11px;border-radius:8px;background:#2454C7;color:#FFFFFF;font-size:12.5px;font-weight:700;text-align:center;cursor:pointer">Créer le graphique</div>
+                <div onClick="{{ onCloseWidgetForm }}" style="padding:11px 16px;border-radius:8px;background:#EEF1F5;color:#5C6B84;font-size:12.5px;font-weight:700;text-align:center;cursor:pointer">Annuler</div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ================= EXPANDED WIDGET OVERLAY ================= -->
+        <sc-if value="{{ expandedWidgetOpen }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ onCloseExpandedWidget }}" style="position:fixed;inset:0;background:rgba(11,31,68,0.45);z-index:199;display:flex;align-items:center;justify-content:center;padding:24px">
+            <div onClick="{{ stopPropagation }}" style="background:#FFFFFF;border-radius:14px;padding:26px;width:100%;max-width:640px;max-height:82vh;overflow-y:auto">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px">
+                <div>
+                  <div style="font-size:17px;font-weight:700;color:#0B1F44">{{ expandedWidget.title }}</div>
+                  <div style="font-size:12px;color:#8592A8;margin-top:3px">{{ expandedWidget.subtitle }}</div>
+                </div>
+                <div onClick="{{ onCloseExpandedWidget }}" style="width:28px;height:28px;border-radius:8px;background:#F0F3F9;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:#5C6B84;flex-shrink:0">×</div>
+              </div>
+
+              <sc-for list="{{ expandedWidget.buckets }}" as="bk" hint-placeholder-count="3">
+                <div style="margin-bottom:16px">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                    <span style="width:10px;height:10px;border-radius:50%;background:{{ bk.color }}"></span>
+                    <span style="font-size:13px;font-weight:700;color:#16233E">{{ bk.label }}</span>
+                    <span style="font-size:12px;color:#8592A8">({{ bk.count }})</span>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:4px;padding-left:18px">
+                    <sc-for list="{{ bk.items }}" as="it" hint-placeholder-count="2">
+                      <div onClick="{{ it.onOpen }}" style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:7px;cursor:pointer" style-hover="background:#F7F9FC">
+                        <span style="font-size:12.5px;color:#16233E;font-weight:600">{{ it.product }}</span>
+                        <span style="font-size:11px;color:#8592A8">{{ it.editor }}</span>
+                      </div>
+                    </sc-for>
+                    <sc-if value="{{ bk.noItems }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:#B0B9C9;padding:4px 10px">Aucune initiative</div></sc-if>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- ================= CATALOG ================= -->
+    <sc-if value="{{ isCatalog }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Catalogue des initiatives" style="max-width:1400px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+          <div>
+            <div onClick="{{ onOpenDashboard }}" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#2454C7;cursor:pointer;margin-bottom:8px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2454C7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
+              Dashboard
+            </div>
+            <div style="font-size:24px;font-weight:700;color:#0B1F44">Catalogue des initiatives</div>
+            <div style="font-size:13.5px;color:#5C6B84;margin-top:4px">{{ filteredCount }} initiative(s) affichée(s) sur {{ totalCount }}</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <div onClick="{{ onSetCatalogTable }}" style="padding:8px 14px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;background:{{ tableModeBg }};color:{{ tableModeFg }};border:1px solid #D9E0EB">Tableau</div>
+            <div onClick="{{ onSetCatalogCards }}" style="padding:8px 14px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;background:{{ cardsModeBg }};color:{{ cardsModeFg }};border:1px solid #D9E0EB">Cartes</div>
+          </div>
+        </div>
+
+        <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:16px;margin-bottom:18px">
+          <input type="text" placeholder="Recherche (produit, éditeur, description...)" value="{{ search }}" onChange="{{ onSearchChange }}" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #D9E0EB;border-radius:8px;font-size:13px;margin-bottom:12px;font-family:inherit"/>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+            <select value="{{ filterMacro }}" onChange="{{ onFilterMacro }}" style="padding:8px;border:1px solid #D9E0EB;border-radius:8px;font-size:12.5px;font-family:inherit">
+              <option value="Tous">Macro-domaine : Tous</option>
+              <sc-for list="{{ macroOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+            <select value="{{ filterStatus }}" onChange="{{ onFilterStatus }}" style="padding:8px;border:1px solid #D9E0EB;border-radius:8px;font-size:12.5px;font-family:inherit">
+              <option value="Tous">Statut : Tous</option>
+              <sc-for list="{{ statusOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+            <select value="{{ filterRisk }}" onChange="{{ onFilterRisk }}" style="padding:8px;border:1px solid #D9E0EB;border-radius:8px;font-size:12.5px;font-family:inherit">
+              <option value="Tous">Risque : Tous</option>
+              <sc-for list="{{ riskOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+            <select value="{{ filterSouverainete }}" onChange="{{ onFilterSouv }}" style="padding:8px;border:1px solid #D9E0EB;border-radius:8px;font-size:12.5px;font-family:inherit">
+              <option value="Tous">Souveraineté : Tous</option>
+              <sc-for list="{{ souvOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+            <select value="{{ filterMoscow }}" onChange="{{ onFilterMoscow }}" style="padding:8px;border:1px solid #D9E0EB;border-radius:8px;font-size:12.5px;font-family:inherit">
+              <option value="Tous">MoSCoW : Tous</option>
+              <sc-for list="{{ moscowOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+          </div>
+        </div>
+
+        <sc-if value="{{ isCatalogTable }}" hint-placeholder-val="{{ true }}">
+          <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;overflow:hidden">
+            <div style="display:grid;grid-template-columns:1.8fr 1.6fr 1fr 1fr 1fr 1fr 1.1fr;gap:8px;padding:12px 16px;background:#F7F9FC;font-size:11px;font-weight:700;color:#5C6B84;text-transform:uppercase;letter-spacing:0.3px">
+              <div>Solution</div><div>Macro-domaine</div><div>Éditeur</div><div>Statut</div><div>Risque</div><div>Priorité</div><div>MoSCoW</div>
+            </div>
+            <sc-for list="{{ catalogRows }}" as="r" hint-placeholder-count="8">
+              <div style="display:grid;grid-template-columns:1.8fr 1.6fr 1fr 1fr 1fr 1fr 1.1fr;gap:8px;padding:13px 16px;border-top:1px solid #F0F2F6;align-items:center;cursor:pointer" onClick="{{ r.onOpen }}">
+                <div>
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <sc-if value="{{ r.hasMarker }}" hint-placeholder-val="{{ false }}">
+                      <span style="width:16px;height:16px;border-radius:50%;background:{{ r.markerColor }};color:#FFFFFF;font-size:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0">{{ r.markerSymbol }}</span>
+                    </sc-if>
+                    <sc-for list="{{ r.legendBadges }}" as="lgb" hint-placeholder-count="0">
+                      <span dangerouslySetInnerHTML="{{ lgb.preview }}" title="{{ lgb.title }}" style="flex-shrink:0"></span>
+                    </sc-for>
+                    <div style="font-size:13px;font-weight:600;color:#16233E;padding:2px 6px;border-radius:5px;border:{{ r.nameBorder }};background:{{ r.nameFill }}">{{ r.product }}</div>
+                  </div>
+                  <div style="font-size:11px;color:#8592A8">{{ r.subDomain }}</div>
+                </div>
+                <div style="font-size:12px;color:#333F55">{{ r.macroDomainShort }}</div>
+                <div style="font-size:12px;color:#333F55">{{ r.editor }}</div>
+                <div><span style="font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;background:{{ r.statusBg }};color:{{ r.statusFg }}">{{ r.status }}</span></div>
+                <div><span style="font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;background:{{ r.riskBg }};color:{{ r.riskFg }}">{{ r.risk }}</span></div>
+                <div><span style="font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;background:{{ r.priBg }};color:{{ r.priFg }}">{{ r.priorityBucket }}</span></div>
+                <div style="font-size:12px;color:#333F55">{{ r.moscow }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isCatalogCards }}" hint-placeholder-val="{{ false }}">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+            <sc-for list="{{ catalogRows }}" as="r" hint-placeholder-count="6">
+              <div onClick="{{ r.onOpen }}" style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:18px;cursor:pointer">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+                  <div style="display:flex;align-items:center;gap:6px;min-width:0">
+                    <sc-for list="{{ r.legendBadges }}" as="lgb" hint-placeholder-count="0">
+                      <span dangerouslySetInnerHTML="{{ lgb.preview }}" title="{{ lgb.title }}" style="flex-shrink:0"></span>
+                    </sc-for>
+                    <sc-if value="{{ r.hasMarker }}" hint-placeholder-val="{{ false }}">
+                      <span style="width:18px;height:18px;border-radius:50%;background:{{ r.markerColor }};color:#FFFFFF;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">{{ r.markerSymbol }}</span>
+                    </sc-if>
+                    <div style="font-size:14px;font-weight:700;color:#16233E;padding:2px 6px;border-radius:5px;border:{{ r.nameBorder }};background:{{ r.nameFill }}">{{ r.product }}</div>
+                  </div>
+                  <span style="font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:20px;background:{{ r.statusBg }};color:{{ r.statusFg }};white-space:nowrap">{{ r.status }}</span>
+                </div>
+                <div style="font-size:11.5px;color:#8592A8;margin-bottom:10px">{{ r.macroDomainShort }} · {{ r.editor }}</div>
+                <div style="font-size:12.5px;color:#4B5872;margin-bottom:14px;line-height:1.45">{{ r.useCasePreview }}</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <span style="font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:20px;background:{{ r.riskBg }};color:{{ r.riskFg }}">Risque {{ r.risk }}</span>
+                  <span style="font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:20px;background:{{ r.priBg }};color:{{ r.priFg }}">{{ r.priorityBucket }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- ================= DOMAINS ================= -->
+    <sc-if value="{{ isDomains }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Vue par macro-domaine" style="max-width:1280px">
+        <div style="margin-bottom:24px">
+          <div style="font-size:24px;font-weight:700;color:#0B1F44">Vue par macro-domaine</div>
+          <div style="font-size:13.5px;color:#5C6B84;margin-top:4px">Comparer la maturité et la couverture des 4 grands domaines du portefeuille</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">
+          <sc-for list="{{ domainCards }}" as="d" hint-placeholder-count="4">
+            <div onClick="{{ d.onOpen }}" style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:22px;cursor:pointer">
+              <div style="font-size:15.5px;font-weight:700;color:#0B1F44;margin-bottom:4px">{{ d.name }}</div>
+              <div style="font-size:12.5px;color:#8592A8;margin-bottom:16px">{{ d.count }} initiative(s)</div>
+              <div style="display:flex;gap:8px;margin-bottom:16px">
+                <div style="flex:1;text-align:center;background:#E5F5EC;border-radius:8px;padding:8px 4px">
+                  <div style="font-size:16px;font-weight:700;color:#1E8E5A">{{ d.deployed }}</div>
+                  <div style="font-size:10px;color:#5C6B84">Déployées</div>
+                </div>
+                <div style="flex:1;text-align:center;background:#E8EEFC;border-radius:8px;padding:8px 4px">
+                  <div style="font-size:16px;font-weight:700;color:#2454C7">{{ d.enTest }}</div>
+                  <div style="font-size:10px;color:#5C6B84">En test</div>
+                </div>
+                <div style="flex:1;text-align:center;background:#FBEFDD;border-radius:8px;padding:8px 4px">
+                  <div style="font-size:16px;font-weight:700;color:#B9770E">{{ d.aTester }}</div>
+                  <div style="font-size:10px;color:#5C6B84">À tester</div>
+                </div>
+                <div style="flex:1;text-align:center;background:#EEF1F5;border-radius:8px;padding:8px 4px">
+                  <div style="font-size:16px;font-weight:700;color:#5C6B84">{{ d.nonEval }}</div>
+                  <div style="font-size:10px;color:#5C6B84">Non évaluées</div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#5C6B84;margin-bottom:4px">
+                  <span>Indice de maturité</span><span style="font-weight:700;color:#16233E">{{ d.maturityPct }}%</span>
+                </div>
+                <div style="height:7px;background:#EEF1F5;border-radius:4px;overflow:hidden">
+                  <div style="height:100%;background:#2454C7;width:{{ d.maturityPct }}%"></div>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ================= DOMAIN DETAIL ================= -->
+    <sc-if value="{{ isDomainDetail }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Détail macro-domaine" style="max-width:1280px">
+        <div onClick="{{ onBackToDomains }}" style="font-size:12.5px;color:#2454C7;font-weight:600;cursor:pointer;margin-bottom:14px">← Retour aux macro-domaines</div>
+        <div style="font-size:22px;font-weight:700;color:#0B1F44;margin-bottom:4px">{{ currentDomain.name }}</div>
+        <div style="font-size:13.5px;color:#5C6B84;margin-bottom:22px">{{ currentDomain.count }} initiative(s) · indice de maturité {{ currentDomain.maturityPct }}%</div>
+
+        <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;overflow:hidden">
+          <div style="display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1.1fr;gap:8px;padding:12px 16px;background:#F7F9FC;font-size:11px;font-weight:700;color:#5C6B84;text-transform:uppercase">
+            <div>Solution</div><div>Éditeur</div><div>Statut</div><div>Risque</div><div>Priorité</div>
+          </div>
+          <sc-for list="{{ currentDomainRows }}" as="r" hint-placeholder-count="5">
+            <div onClick="{{ r.onOpen }}" style="display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1.1fr;gap:8px;padding:13px 16px;border-top:1px solid #F0F2F6;align-items:center;cursor:pointer">
+              <div style="font-size:13px;font-weight:600;color:#16233E">{{ r.product }}</div>
+              <div style="font-size:12px;color:#333F55">{{ r.editor }}</div>
+              <div><span style="font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;background:{{ r.statusBg }};color:{{ r.statusFg }}">{{ r.status }}</span></div>
+              <div><span style="font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;background:{{ r.riskBg }};color:{{ r.riskFg }}">{{ r.risk }}</span></div>
+              <div><span style="font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;background:{{ r.priBg }};color:{{ r.priFg }}">{{ r.priorityBucket }}</span></div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ================= INITIATIVE DETAIL ================= -->
+    <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Fiche initiative" style="max-width:1100px">
+        <div onClick="{{ onBackToCatalog }}" style="font-size:12.5px;color:#2454C7;font-weight:600;cursor:pointer;margin-bottom:14px">← Retour au catalogue</div>
+
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <sc-if value="{{ current.hasMarker }}" hint-placeholder-val="{{ false }}">
+                <span style="width:28px;height:28px;border-radius:50%;background:{{ current.markerColor }};color:#FFFFFF;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0">{{ current.markerSymbol }}</span>
+              </sc-if>
+              <sc-for list="{{ current.legendBadges }}" as="lgb" hint-placeholder-count="0">
+                <span dangerouslySetInnerHTML="{{ lgb.preview }}" title="{{ lgb.title }}" style="flex-shrink:0"></span>
+              </sc-for>
+              <div style="font-size:23px;font-weight:700;color:#0B1F44;padding:2px 10px;border-radius:8px;border:{{ current.nameBorder }};background:{{ current.nameFill }}">{{ current.product }}</div>
+            </div>
+            <div style="font-size:13.5px;color:#5C6B84;margin-top:4px">{{ current.editor }} · {{ current.macroDomain }} · {{ current.subDomain }}</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <div onClick="{{ onEditCurrent }}" style="padding:9px 16px;border-radius:8px;background:#2454C7;color:#FFFFFF;font-size:12.5px;font-weight:600;cursor:pointer">Modifier</div>
+            <div onClick="{{ onDeleteCurrent }}" style="padding:9px 16px;border-radius:8px;background:#FBEAEA;color:#C23B3B;font-size:12.5px;font-weight:600;cursor:pointer">Supprimer</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-bottom:24px">
+          <span style="font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:20px;background:{{ current.statusBg }};color:{{ current.statusFg }}">{{ current.status }}</span>
+          <span style="font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:20px;background:{{ current.riskBg }};color:{{ current.riskFg }}">Risque {{ current.risksData.level }}</span>
+          <span style="font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:20px;background:{{ current.priBg }};color:{{ current.priFg }}">Priorité {{ current.priorityBucket }}</span>
+          <span style="font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:20px;background:#EEF1F5;color:#5C6B84">{{ current.souverainete }}</span>
+        </div>
+
+        <!-- Description -->
+        <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:22px;margin-bottom:16px">
+          <div style="font-size:14.5px;font-weight:700;color:#0B1F44;margin-bottom:14px">Description</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:#8592A8;text-transform:uppercase;margin-bottom:4px">Description</div>
+              <div style="font-size:13px;color:#333F55;line-height:1.5">{{ current.description.description }}</div>
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:#8592A8;text-transform:uppercase;margin-bottom:4px">Cas d'usage</div>
+              <div style="font-size:13px;color:#333F55;line-height:1.5">{{ current.description.useCase }}</div>
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:#8592A8;text-transform:uppercase;margin-bottom:4px">Valeur métier</div>
+              <div style="font-size:13px;color:#333F55;line-height:1.5">{{ current.description.businessValue }}</div>
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:#8592A8;text-transform:uppercase;margin-bottom:4px">Population cible</div>
+              <div style="font-size:13px;color:#333F55;line-height:1.5">{{ current.description.targetPopulation }}</div>
+            </div>
+          </div>
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid #F0F2F6">
+            <div style="font-size:11.5px;font-weight:700;color:#8592A8;text-transform:uppercase;margin-bottom:4px">Commentaires</div>
+            <div style="font-size:13px;color:#333F55;line-height:1.5">{{ current.description.comments }}</div>
+          </div>
+        </div>
+
+        <!-- Priorisation -->
+        <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:22px;margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="font-size:14.5px;font-weight:700;color:#0B1F44">Priorisation</div>
+            <div onClick="{{ onTogglePriorityExplain }}" style="font-size:12px;font-weight:600;color:#2454C7;cursor:pointer">Comprendre le calcul</div>
+          </div>
+          <div style="display:flex;gap:24px;margin-bottom:8px">
+            <div><div style="font-size:11px;color:#8592A8">MoSCoW</div><div style="font-size:14px;font-weight:700;color:#16233E">{{ current.prioritization.moscow }}</div></div>
+            <div><div style="font-size:11px;color:#8592A8">Niveau</div><div style="font-size:14px;font-weight:700;color:#16233E">{{ current.prioritization.level }}</div></div>
+            <div><div style="font-size:11px;color:#8592A8">Score de priorité</div><div style="font-size:14px;font-weight:700;color:#16233E">{{ current.priorityScore }} / 100</div></div>
+            <div><div style="font-size:11px;color:#8592A8">Priorité</div><div style="font-size:14px;font-weight:700;color:{{ current.priFg }}">{{ current.priorityBucket }}</div></div>
+          </div>
+          <sc-if value="{{ showPriorityExplain }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:14px;padding-top:14px;border-top:1px solid #F0F2F6">
+              <sc-for list="{{ current.priorityBreakdown }}" as="b" hint-placeholder-count="5">
+                <div style="margin-bottom:9px">
+                  <div style="display:flex;justify-content:space-between;font-size:12px;color:#333F55;margin-bottom:3px">
+                    <span>{{ b.label }} (poids {{ b.weight }}%)</span><span style="font-weight:700">{{ b.value }} / 100</span>
+                  </div>
+                  <div style="height:6px;background:#EEF1F5;border-radius:3px;overflow:hidden">
+                    <div style="height:100%;background:#2454C7;width:{{ b.value }}%"></div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+
+        <!-- Risques -->
+        <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:22px;margin-bottom:16px">
+          <div style="font-size:14.5px;font-weight:700;color:#0B1F44;margin-bottom:14px">Risques</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:#8592A8;text-transform:uppercase;margin-bottom:6px">Freins identifiés</div>
+              <sc-if value="{{ current.hasBlockers }}" hint-placeholder-val="{{ false }}">
+                <sc-for list="{{ current.blockersList }}" as="b" hint-placeholder-count="2">
+                  <div style="font-size:13px;color:#333F55;margin-bottom:4px">• {{ b }}</div>
+                </sc-for>
+              </sc-if>
+              <sc-if value="{{ current.noBlockers }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:12.5px;color:#B0B9C9">Aucun frein documenté</div>
+              </sc-if>
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:#8592A8;text-transform:uppercase;margin-bottom:6px">Points de vigilance</div>
+              <sc-if value="{{ current.hasWatchPoints }}" hint-placeholder-val="{{ false }}">
+                <sc-for list="{{ current.watchPointsList }}" as="w" hint-placeholder-count="2">
+                  <div style="font-size:13px;color:#333F55;margin-bottom:4px">• {{ w }}</div>
+                </sc-for>
+              </sc-if>
+              <sc-if value="{{ current.noWatchPoints }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:12.5px;color:#B0B9C9">Aucun point de vigilance documenté</div>
+              </sc-if>
+            </div>
+          </div>
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid #F0F2F6">
+            <div style="font-size:11.5px;font-weight:700;color:#8592A8;text-transform:uppercase;margin-bottom:4px">Dépendances / prérequis</div>
+            <div style="font-size:13px;color:#333F55">{{ current.governance.dependencies }} {{ current.governance.prerequisites }}</div>
+          </div>
+        </div>
+
+        <!-- ROI -->
+        <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:22px;margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="font-size:14.5px;font-weight:700;color:#0B1F44">ROI</div>
+            <sc-if value="{{ current.hasROI }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:14px;align-items:center">
+                <div onClick="{{ onToggleROIExplain }}" style="font-size:12px;font-weight:600;color:#2454C7;cursor:pointer">Comprendre le calcul</div>
+                <div onClick="{{ onOpenROIForCurrent }}" style="font-size:12px;font-weight:600;color:#2454C7;cursor:pointer">Recalculer</div>
+              </div>
+            </sc-if>
+          </div>
+
+          <sc-if value="{{ current.hasROI }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px">
+              <div style="background:#F7F9FC;border-radius:10px;padding:14px">
+                <div style="font-size:11px;color:#5C6B84">Valeur annuelle générée</div>
+                <div style="font-size:18px;font-weight:700;color:#1E8E5A;margin-top:4px">{{ current.roiCard.valeurAnnuelle }}</div>
+              </div>
+              <div style="background:#F7F9FC;border-radius:10px;padding:14px">
+                <div style="font-size:11px;color:#5C6B84">Coût annuel complet</div>
+                <div style="font-size:18px;font-weight:700;color:#C23B3B;margin-top:4px">{{ current.roiCard.coutAnnuelComplet }}</div>
+              </div>
+              <div style="background:#F7F9FC;border-radius:10px;padding:14px">
+                <div style="font-size:11px;color:#5C6B84">ROI net complet</div>
+                <div style="font-size:18px;font-weight:700;color:#2454C7;margin-top:4px">{{ current.roiCard.roiNetComplet }}</div>
+              </div>
+              <div style="background:#F7F9FC;border-radius:10px;padding:14px">
+                <div style="font-size:11px;color:#5C6B84">Payback</div>
+                <div style="font-size:18px;font-weight:700;color:#16233E;margin-top:4px">{{ current.roiCard.payback }}</div>
+              </div>
+            </div>
+
+            <div style="margin-bottom:8px">
+              <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#5C6B84;margin-bottom:4px">
+                <span>Jauge ROI (complet)</span><span style="font-weight:700;color:#16233E">{{ current.roiCard.roiPctComplet }}</span>
+              </div>
+              <div style="height:14px;border-radius:7px;background:linear-gradient(90deg,#C23B3B 0%,#B9770E 33%,#1E8E5A 66%,#1E8E5A 100%);position:relative">
+                <div style="position:absolute;top:-4px;width:3px;height:22px;background:#0B1F44;left:{{ current.roiGaugePct }}%"></div>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px">
+              <div>
+                <div style="font-size:11.5px;font-weight:700;color:#8592A8;text-transform:uppercase;margin-bottom:10px">Waterfall — de la valeur au ROI net</div>
+                <div style="display:flex;align-items:flex-end;gap:6px;height:150px">
+                  <sc-for list="{{ current.waterfall }}" as="w" hint-placeholder-count="6">
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+                      <div style="font-size:10px;color:#5C6B84;margin-bottom:3px">{{ w.valueLabel }}</div>
+                      <div style="width:100%;border-radius:4px 4px 0 0;background:{{ w.color }};height:{{ w.heightPct }}%"></div>
+                      <div style="font-size:9.5px;color:#8592A8;margin-top:5px;text-align:center">{{ w.label }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11.5px;font-weight:700;color:#8592A8;text-transform:uppercase;margin-bottom:10px">Courbe de rentabilité (12 mois)</div>
+                <svg viewBox="0 0 300 150" style="width:100%;height:150px;background:#F7F9FC;border-radius:8px">
+                  <polyline points="{{ current.curveCostPoints }}" fill="none" stroke="#C23B3B" stroke-width="2"></polyline>
+                  <polyline points="{{ current.curveValuePoints }}" fill="none" stroke="#1E8E5A" stroke-width="2"></polyline>
+                </svg>
+                <div style="font-size:11.5px;color:#5C6B84;margin-top:6px">Seuil de rentabilité : <strong style="color:#16233E">{{ current.breakevenLabel }}</strong></div>
+              </div>
+            </div>
+
+            <sc-if value="{{ showROIExplain }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:20px;padding-top:16px;border-top:1px solid #F0F2F6;font-size:12.5px;color:#4B5872;line-height:1.7">
+                <div><strong>Heures économisées</strong> = U × T × M × 12 × S / 60 = {{ current.roiCard.heuresEconomisees }} h/an</div>
+                <div><strong>Valeur annuelle</strong> = Heures économisées × H × R = {{ current.roiCard.valeurAnnuelle }}</div>
+                <div><strong>Coût annuel complet</strong> = (U×L×12) + D + I + C + SUP = {{ current.roiCard.coutAnnuelComplet }}</div>
+                <div><strong>ROI net complet</strong> = Valeur annuelle − Coût annuel complet = {{ current.roiCard.roiNetComplet }}</div>
+                <div><strong>ROI % complet</strong> = ROI net complet / Coût annuel complet × 100 = {{ current.roiCard.roiPctComplet }}</div>
+                <div style="margin-top:8px;font-size:11.5px;color:#8592A8">Hypothèses saisies — U:{{ current.roi.inputs.U }} T:{{ current.roi.inputs.T }} M:{{ current.roi.inputs.M }} S:{{ current.roi.inputs.S }}% H:{{ current.roi.inputs.H }}€ R:{{ current.roi.inputs.R }}% · L:{{ current.roi.inputs.L }}€ D:{{ current.roi.inputs.D }}€ I:{{ current.roi.inputs.I }}€ C:{{ current.roi.inputs.C }}€ SUP:{{ current.roi.inputs.SUP }}€</div>
+              </div>
+            </sc-if>
+          </sc-if>
+
+          <sc-if value="{{ current.noROI }}" hint-placeholder-val="{{ true }}">
+            <div style="text-align:center;padding:24px">
+              <div style="font-size:13px;color:#8592A8;margin-bottom:14px">Aucun calcul ROI enregistré pour cette initiative</div>
+              <div onClick="{{ onOpenROIForCurrent }}" style="display:inline-block;padding:10px 18px;border-radius:8px;background:#2454C7;color:#FFFFFF;font-size:12.5px;font-weight:600;cursor:pointer">Calculer le ROI</div>
+            </div>
+          </sc-if>
+        </div>
+
+        <!-- Gouvernance -->
+        <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:22px;margin-bottom:16px">
+          <div style="font-size:14.5px;font-weight:700;color:#0B1F44;margin-bottom:14px">Gouvernance</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+            <div><div style="font-size:11px;color:#8592A8">Responsable</div><div style="font-size:13px;font-weight:600;color:#16233E">{{ current.governance.responsible }}</div></div>
+            <div><div style="font-size:11px;color:#8592A8">Mise à jour</div><div style="font-size:13px;font-weight:600;color:#16233E">{{ current.governance.updateDate }}</div></div>
+            <div><div style="font-size:11px;color:#8592A8">Source</div><div style="font-size:13px;font-weight:600;color:#16233E">{{ current.governance.source }}</div></div>
+            <div><div style="font-size:11px;color:#8592A8">Modèle</div><div style="font-size:13px;font-weight:600;color:#16233E">{{ current.model }}</div></div>
+          </div>
+        </div>
+
+        <!-- Documentation (lecture seule — gestion via Modifier) -->
+        <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:22px">
+          <div style="font-size:14.5px;font-weight:700;color:#0B1F44;margin-bottom:14px">Documentation</div>
+          <sc-if value="{{ current.docs.hasGroups }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px">
+              <sc-for list="{{ current.docs.groups }}" as="g" hint-placeholder-count="2">
+                <div>
+                  <div style="font-size:11.5px;font-weight:700;color:#8592A8;text-transform:uppercase;margin-bottom:6px">{{ g.category }}</div>
+                  <sc-for list="{{ g.items }}" as="d" hint-placeholder-count="1">
+                    <div style="font-size:12.5px;color:#333F55;margin-bottom:5px">
+                      <sc-if value="{{ d.hasLink }}" hint-placeholder-val="{{ false }}">• <a href="{{ d.href }}" target="_blank" rel="noopener">{{ d.title }}</a></sc-if>
+                      <sc-if value="{{ d.noLink }}" hint-placeholder-val="{{ false }}">• {{ d.title }}</sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ current.docs.noItems }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12.5px;color:#B0B9C9">Aucun document ajouté. Utilisez "Modifier" pour en ajouter.</div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ================= EDIT / CREATE ================= -->
+    <sc-if value="{{ isEdit }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Édition initiative" style="max-width:900px">
+        <div onClick="{{ onCancelEdit }}" style="font-size:12.5px;color:#2454C7;font-weight:600;cursor:pointer;margin-bottom:14px">← Annuler</div>
+        <div style="font-size:22px;font-weight:700;color:#0B1F44;margin-bottom:20px">{{ editTitle }}</div>
+
+        <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:22px;margin-bottom:16px">
+          <div style="font-size:13.5px;font-weight:700;color:#0B1F44;margin-bottom:14px">Identification</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div><div style="font-size:11px;color:#8592A8;margin-bottom:4px">Nom de la solution</div><input value="{{ draft.product }}" onChange="{{ handlers.product }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit"/></div>
+            <div><div style="font-size:11px;color:#8592A8;margin-bottom:4px">Éditeur / Société</div><input value="{{ draft.editor }}" onChange="{{ handlers.editor }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit"/></div>
+            <div>
+              <div style="font-size:11px;color:#8592A8;margin-bottom:4px">Macro-domaine</div>
+              <select value="{{ draft.macroDomain }}" onChange="{{ handlers.macroDomain }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit">
+                <sc-for list="{{ macroOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+              </select>
+            </div>
+            <div><div style="font-size:11px;color:#8592A8;margin-bottom:4px">Sous-domaine</div><input value="{{ draft.subDomain }}" onChange="{{ handlers.subDomain }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit"/></div>
+            <div>
+              <div style="font-size:11px;color:#8592A8;margin-bottom:4px">Modèle</div>
+              <select value="{{ draft.model }}" onChange="{{ handlers.model }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit">
+                <option value="Éditeur">Éditeur</option>
+                <option value="Interne">Interne</option>
+                <option value="Interne + éditeur">Interne + éditeur</option>
+                <option value="Open source">Open source</option>
+                <option value="Open core">Open core</option>
+              </select>
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8592A8;margin-bottom:4px">Souveraineté</div>
+              <select value="{{ draft.souverainete }}" onChange="{{ handlers.souverainete }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit">
+                <sc-for list="{{ souvOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:22px;margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="font-size:13.5px;font-weight:700;color:#0B1F44">Légende de l'initiative</div>
+            <sc-if value="{{ hasMarkerSet }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ onClearMarker }}" style="font-size:11.5px;font-weight:600;color:#C23B3B;cursor:pointer">Réinitialiser</div>
+            </sc-if>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+            <div style="width:36px;height:36px;border-radius:50%;background:{{ markerPreviewColor }};display:flex;align-items:center;justify-content:center;font-size:16px;color:#FFFFFF;flex-shrink:0">{{ markerPreviewSymbol }}</div>
+            <div style="font-size:11.5px;color:#8592A8">Aperçu — ce symbole apparaîtra à gauche du nom dans le catalogue et la fiche</div>
+          </div>
+          <div style="font-size:11px;color:#8592A8;margin-bottom:6px">Couleur</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+            <sc-for list="{{ markerColorOptions }}" as="c" hint-placeholder-count="16">
+              <div onClick="{{ c.onClick }}" style="width:26px;height:26px;border-radius:50%;background:{{ c.color }};cursor:pointer;box-shadow:{{ c.selectedShadow }};border:2px solid {{ c.borderColor }}"></div>
+            </sc-for>
+          </div>
+          <div style="font-size:11px;color:#8592A8;margin-bottom:6px">Symbole</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">
+            <sc-for list="{{ markerSymbolOptions }}" as="sym" hint-placeholder-count="20">
+              <div onClick="{{ sym.onClick }}" style="width:32px;height:32px;border-radius:8px;background:{{ sym.bg }};border:1px solid {{ sym.borderColor }};display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;color:#16233E">{{ sym.symbol }}</div>
+            </sc-for>
+          </div>
+
+          <div style="border-top:1px solid #F0F2F6;padding-top:16px;margin-bottom:18px">
+            <div style="font-size:11px;color:#8592A8;margin-bottom:8px">Statut de l'initiative</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <sc-for list="{{ draftStatusOptions }}" as="lo" hint-placeholder-count="4">
+                <label style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:#16233E;padding:6px 8px;border-radius:7px;cursor:pointer" style-hover="background:#F7F9FC">
+                  <input type="checkbox" checked="{{ lo.active }}" onChange="{{ lo.onToggle }}"/>
+                  <span dangerouslySetInnerHTML="{{ lo.preview }}"></span>
+                  {{ lo.title }}
+                </label>
+              </sc-for>
+            </div>
+            <div style="font-size:11px;color:#8592A8;margin-top:8px">Ces statuts s'affichent sur le nom de l'initiative dans le portefeuille, le catalogue, cette fiche, et dans la légende du dashboard.</div>
+          </div>
+
+        </div>
+
+        <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:22px;margin-bottom:16px">
+          <div style="font-size:13.5px;font-weight:700;color:#0B1F44;margin-bottom:14px">Description</div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div><div style="font-size:11px;color:#8592A8;margin-bottom:4px">Description</div><textarea value="{{ draft.description.description }}" onChange="{{ handlers.description.description }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit;min-height:60px"></textarea></div>
+            <div><div style="font-size:11px;color:#8592A8;margin-bottom:4px">Cas d'usage</div><textarea value="{{ draft.description.useCase }}" onChange="{{ handlers.description.useCase }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit;min-height:60px"></textarea></div>
+            <div><div style="font-size:11px;color:#8592A8;margin-bottom:4px">Valeur métier</div><textarea value="{{ draft.description.businessValue }}" onChange="{{ handlers.description.businessValue }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit;min-height:50px"></textarea></div>
+            <div><div style="font-size:11px;color:#8592A8;margin-bottom:4px">Population cible</div><input value="{{ draft.description.targetPopulation }}" onChange="{{ handlers.description.targetPopulation }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit"/></div>
+            <div><div style="font-size:11px;color:#8592A8;margin-bottom:4px">Commentaires</div><textarea value="{{ draft.description.comments }}" onChange="{{ handlers.description.comments }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit;min-height:50px"></textarea></div>
+          </div>
+        </div>
+
+        <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:22px;margin-bottom:16px">
+          <div style="font-size:13.5px;font-weight:700;color:#0B1F44;margin-bottom:14px">Statut & gouvernance</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div>
+              <div style="font-size:11px;color:#8592A8;margin-bottom:4px">Statut de déploiement</div>
+              <select value="{{ draft.status }}" onChange="{{ handlers.status }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit">
+                <sc-for list="{{ statusOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+              </select>
+            </div>
+            <div><div style="font-size:11px;color:#8592A8;margin-bottom:4px">Responsable</div><input value="{{ draft.governance.responsible }}" onChange="{{ handlers.governance.responsible }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit"/></div>
+            <div><div style="font-size:11px;color:#8592A8;margin-bottom:4px">Source</div><input value="{{ draft.governance.source }}" onChange="{{ handlers.governance.source }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit"/></div>
+            <div><div style="font-size:11px;color:#8592A8;margin-bottom:4px">Date de mise à jour</div><input type="date" value="{{ draft.governance.updateDate }}" onChange="{{ handlers.governance.updateDate }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit"/></div>
+            <div><div style="font-size:11px;color:#8592A8;margin-bottom:4px">Dépendances</div><input value="{{ draft.governance.dependencies }}" onChange="{{ handlers.governance.dependencies }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit"/></div>
+            <div><div style="font-size:11px;color:#8592A8;margin-bottom:4px">Prérequis</div><input value="{{ draft.governance.prerequisites }}" onChange="{{ handlers.governance.prerequisites }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit"/></div>
+          </div>
+        </div>
+
+        <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:22px;margin-bottom:16px">
+          <div style="font-size:13.5px;font-weight:700;color:#0B1F44;margin-bottom:14px">Priorisation & risques</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+            <div>
+              <div style="font-size:11px;color:#8592A8;margin-bottom:4px">MoSCoW</div>
+              <select value="{{ draft.prioritization.moscow }}" onChange="{{ handlers.prioritization.moscow }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit">
+                <sc-for list="{{ moscowOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+              </select>
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8592A8;margin-bottom:4px">Niveau (L1-L4)</div>
+              <select value="{{ draft.prioritization.level }}" onChange="{{ handlers.prioritization.level }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit">
+                <sc-for list="{{ levelOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+              </select>
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8592A8;margin-bottom:4px">Niveau de risque</div>
+              <select value="{{ draft.risksData.level }}" onChange="{{ handlers.risksData.level }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit">
+                <sc-for list="{{ riskOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div><div style="font-size:11px;color:#8592A8;margin-bottom:4px">Freins identifiés (un par ligne)</div><textarea value="{{ draftBlockersText }}" onChange="{{ handlers.blockersText }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit;min-height:70px"></textarea></div>
+            <div><div style="font-size:11px;color:#8592A8;margin-bottom:4px">Points de vigilance (un par ligne)</div><textarea value="{{ draftWatchPointsText }}" onChange="{{ handlers.watchPointsText }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:13px;font-family:inherit;min-height:70px"></textarea></div>
+          </div>
+        </div>
+
+        <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:22px;margin-bottom:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="font-size:13.5px;font-weight:700;color:#0B1F44">Documentation</div>
+            <div onClick="{{ onOpenNewDocForm }}" style="padding:8px 14px;border-radius:8px;background:#2454C7;color:#FFFFFF;font-size:12px;font-weight:700;cursor:pointer">+ Nouveau document</div>
+          </div>
+
+          <sc-if value="{{ draftDocItems.length }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+              <sc-for list="{{ draftDocItems }}" as="d" hint-placeholder-count="2">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:10px 12px;background:#F7F9FC;border-radius:8px">
+                  <div style="min-width:0">
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                      <span style="font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:20px;background:#E8EEFC;color:#2454C7;white-space:nowrap">{{ d.category }}</span>
+                      <span style="font-size:13px;font-weight:600;color:#16233E">{{ d.title }}</span>
+                    </div>
+                    <sc-if value="{{ d.hasDescription }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:#5C6B84;margin-top:3px">{{ d.description }}</div></sc-if>
+                  </div>
+                  <div style="display:flex;gap:6px;flex-shrink:0">
+                    <div onClick="{{ d.onEdit }}" style="font-size:11px;font-weight:600;color:#2454C7;cursor:pointer;padding:4px 8px">Modifier</div>
+                    <div onClick="{{ d.onDelete }}" style="font-size:11px;font-weight:600;color:#C23B3B;cursor:pointer;padding:4px 8px">Supprimer</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ noDraftDocItems }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12.5px;color:#B0B9C9;margin-bottom:16px">Aucun document ajouté pour le moment</div>
+          </sc-if>
+
+          <sc-if value="{{ docForm.open }}" hint-placeholder-val="{{ false }}">
+            <div style="border:1px solid #D9E0EB;border-radius:10px;padding:16px;background:#FBFCFE">
+              <div style="font-size:12.5px;font-weight:700;color:#0B1F44;margin-bottom:12px">{{ docForm.formTitle }}</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                <div>
+                  <div style="font-size:11px;color:#8592A8;margin-bottom:4px">Catégorie</div>
+                  <select value="{{ docForm.category }}" onChange="{{ docFormHandlers.onCategory }}" style="width:100%;box-sizing:border-box;padding:8px 9px;border:1px solid #D9E0EB;border-radius:7px;font-size:12.5px;font-family:inherit">
+                    <sc-for list="{{ docCategoryOptions }}" as="o" hint-placeholder-count="5"><option value="{{ o }}">{{ o }}</option></sc-for>
+                  </select>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:#8592A8;margin-bottom:4px">Titre</div>
+                  <input type="text" value="{{ docForm.title }}" onChange="{{ docFormHandlers.onTitle }}" style="width:100%;box-sizing:border-box;padding:8px 9px;border:1px solid #D9E0EB;border-radius:7px;font-size:12.5px;font-family:inherit"/>
+                </div>
+              </div>
+              <div style="margin-bottom:12px">
+                <div style="font-size:11px;color:#8592A8;margin-bottom:4px">Description</div>
+                <textarea value="{{ docForm.description }}" onChange="{{ docFormHandlers.onDescription }}" style="width:100%;box-sizing:border-box;padding:8px 9px;border:1px solid #D9E0EB;border-radius:7px;font-size:12.5px;font-family:inherit;min-height:50px"></textarea>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+                <div>
+                  <div style="font-size:11px;color:#8592A8;margin-bottom:4px">Lien (URL, optionnel)</div>
+                  <input type="text" placeholder="https://…" value="{{ docForm.url }}" onChange="{{ docFormHandlers.onUrl }}" style="width:100%;box-sizing:border-box;padding:8px 9px;border:1px solid #D9E0EB;border-radius:7px;font-size:12.5px;font-family:inherit"/>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:#8592A8;margin-bottom:4px">Fichier à insérer (optionnel)</div>
+                  <label style="display:flex;align-items:center;gap:8px;padding:8px 9px;border:1px solid #D9E0EB;border-radius:7px;font-size:12px;color:#2454C7;font-weight:600;cursor:pointer;box-sizing:border-box">
+                    <input type="file" onChange="{{ docFormHandlers.onFile }}" style="display:none"/>
+                    <span>{{ docForm.fileLabel }}</span>
+                  </label>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px">
+                <div onClick="{{ docFormHandlers.onValidate }}" style="padding:9px 18px;border-radius:8px;background:#2454C7;color:#FFFFFF;font-size:12.5px;font-weight:700;cursor:pointer">Valider</div>
+                <div onClick="{{ docFormHandlers.onCancel }}" style="padding:9px 18px;border-radius:8px;background:#EEF1F5;color:#5C6B84;font-size:12.5px;font-weight:700;cursor:pointer">Annuler</div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="display:flex;gap:10px">
+          <div onClick="{{ onSaveDraft }}" style="padding:11px 22px;border-radius:8px;background:#2454C7;color:#FFFFFF;font-size:13px;font-weight:700;cursor:pointer">Enregistrer</div>
+          <div onClick="{{ onCancelEdit }}" style="padding:11px 22px;border-radius:8px;background:#EEF1F5;color:#5C6B84;font-size:13px;font-weight:700;cursor:pointer">Annuler</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ================= ROI CALCULATOR ================= -->
+    <sc-if value="{{ isROI }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Calculatrice ROI" style="max-width:1200px">
+        <div style="margin-bottom:20px">
+          <div style="font-size:24px;font-weight:700;color:#0B1F44">Calculatrice ROI</div>
+          <div style="font-size:13.5px;color:#5C6B84;margin-top:4px">{{ roiContextLabel }}</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:380px 1fr;gap:20px">
+          <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:22px">
+            <div style="font-size:12.5px;font-weight:700;color:#0B1F44;margin-bottom:4px">Associer à une initiative (optionnel)</div>
+            <select value="{{ roiContextId }}" onChange="{{ onROIContextChange }}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0EB;border-radius:7px;font-size:12.5px;font-family:inherit;margin-bottom:16px">
+              <option value="">— Simulation libre —</option>
+              <sc-for list="{{ allInitiativesOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o.id }}">{{ o.product }}</option></sc-for>
+            </select>
+
+            <div style="font-size:12.5px;font-weight:700;color:#0B1F44;margin:16px 0 10px 0">Variables métier</div>
+            <sc-for list="{{ roiBusinessFields }}" as="f" hint-placeholder-count="6">
+              <div style="margin-bottom:10px">
+                <div style="font-size:11px;color:#8592A8;margin-bottom:3px">{{ f.label }}</div>
+                <input type="number" value="{{ f.value }}" onChange="{{ f.onChange }}" style="width:100%;box-sizing:border-box;padding:8px 9px;border:1px solid #D9E0EB;border-radius:6px;font-size:12.5px;font-family:inherit"/>
+              </div>
+            </sc-for>
+
+            <div style="font-size:12.5px;font-weight:700;color:#0B1F44;margin:16px 0 10px 0">Variables de coûts</div>
+            <sc-for list="{{ roiCostFields }}" as="f" hint-placeholder-count="5">
+              <div style="margin-bottom:10px">
+                <div style="font-size:11px;color:#8592A8;margin-bottom:3px">{{ f.label }}</div>
+                <input type="number" value="{{ f.value }}" onChange="{{ f.onChange }}" style="width:100%;box-sizing:border-box;padding:8px 9px;border:1px solid #D9E0EB;border-radius:6px;font-size:12.5px;font-family:inherit"/>
+              </div>
+            </sc-for>
+
+            <sc-if value="{{ hasROIContext }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ onSaveROIToInitiative }}" style="margin-top:6px;padding:11px;border-radius:8px;background:#2454C7;color:#FFFFFF;font-size:12.5px;font-weight:700;text-align:center;cursor:pointer">Enregistrer sur la fiche</div>
+            </sc-if>
+          </div>
+
+          <div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+              <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:16px">
+                <div style="font-size:11px;color:#5C6B84">Heures économisées / an</div>
+                <div style="font-size:19px;font-weight:700;color:#16233E;margin-top:4px">{{ roiResult.heuresEconomisees }}</div>
+              </div>
+              <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:16px">
+                <div style="font-size:11px;color:#5C6B84">Valeur annuelle générée</div>
+                <div style="font-size:19px;font-weight:700;color:#1E8E5A;margin-top:4px">{{ roiResult.valeurAnnuelle }}</div>
+              </div>
+              <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:16px">
+                <div style="font-size:11px;color:#5C6B84">Coût annuel complet</div>
+                <div style="font-size:19px;font-weight:700;color:#C23B3B;margin-top:4px">{{ roiResult.coutAnnuelComplet }}</div>
+              </div>
+              <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:16px">
+                <div style="font-size:11px;color:#5C6B84">Payback</div>
+                <div style="font-size:19px;font-weight:700;color:#16233E;margin-top:4px">{{ roiResult.payback }}</div>
+              </div>
+            </div>
+
+            <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:20px;margin-bottom:16px">
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:#5C6B84;margin-bottom:6px">
+                <span>Jauge ROI net complet</span><span style="font-weight:700;color:#16233E">{{ roiResult.roiPctComplet }}</span>
+              </div>
+              <div style="height:16px;border-radius:8px;background:linear-gradient(90deg,#C23B3B 0%,#B9770E 33%,#1E8E5A 66%,#1E8E5A 100%);position:relative">
+                <div style="position:absolute;top:-4px;width:3px;height:24px;background:#0B1F44;left:{{ roiGaugePct }}%"></div>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+              <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:20px">
+                <div style="font-size:12px;font-weight:700;color:#0B1F44;margin-bottom:12px">Waterfall</div>
+                <div style="display:flex;align-items:flex-end;gap:6px;height:150px">
+                  <sc-for list="{{ roiWaterfall }}" as="w" hint-placeholder-count="6">
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+                      <div style="font-size:10px;color:#5C6B84;margin-bottom:3px">{{ w.valueLabel }}</div>
+                      <div style="width:100%;border-radius:4px 4px 0 0;background:{{ w.color }};height:{{ w.heightPct }}%"></div>
+                      <div style="font-size:9.5px;color:#8592A8;margin-top:5px;text-align:center">{{ w.label }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:20px">
+                <div style="font-size:12px;font-weight:700;color:#0B1F44;margin-bottom:12px">Courbe de rentabilité (12 mois)</div>
+                <svg viewBox="0 0 300 150" style="width:100%;height:150px;background:#F7F9FC;border-radius:8px">
+                  <polyline points="{{ roiCurveCostPoints }}" fill="none" stroke="#C23B3B" stroke-width="2"></polyline>
+                  <polyline points="{{ roiCurveValuePoints }}" fill="none" stroke="#1E8E5A" stroke-width="2"></polyline>
+                </svg>
+                <div style="font-size:11.5px;color:#5C6B84;margin-top:6px">Seuil de rentabilité : <strong style="color:#16233E">{{ roiBreakevenLabel }}</strong></div>
+              </div>
+            </div>
+
+            <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:20px">
+              <div onClick="{{ onToggleROICalcExplain }}" style="font-size:12px;font-weight:600;color:#2454C7;cursor:pointer;margin-bottom:10px">Comprendre le calcul</div>
+              <sc-if value="{{ showROICalcExplain }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:12.5px;color:#4B5872;line-height:1.8">
+                  <div>Heures économisées = U × T × M × 12 × S / 60</div>
+                  <div>Valeur annuelle = Heures économisées × H × R</div>
+                  <div>Coût annuel = (U × L × 12) + D</div>
+                  <div>Coût annuel complet = (U × L × 12) + D + I + C + SUP</div>
+                  <div>ROI net (complet) = Valeur annuelle − Coût annuel (complet)</div>
+                  <div>ROI % (complet) = ROI net (complet) / Coût annuel (complet) × 100</div>
+                  <div>Payback = Coût annuel / (Valeur annuelle / 12)</div>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ================= PORTFOLIO ROI SYNTHESIS ================= -->
+    <sc-if value="{{ isPortfolio }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Synthèse ROI portefeuille" style="max-width:1280px">
+        <div style="margin-bottom:24px">
+          <div style="font-size:24px;font-weight:700;color:#0B1F44">Synthèse ROI portefeuille</div>
+          <div style="font-size:13.5px;color:#5C6B84;margin-top:4px">{{ portfolioCoverageLabel }}</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px">
+          <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:18px">
+            <div style="font-size:11.5px;color:#5C6B84">Valeur annuelle totale</div>
+            <div style="font-size:22px;font-weight:700;color:#1E8E5A;margin-top:6px">{{ portfolioTotals.valeurAnnuelle }}</div>
+          </div>
+          <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:18px">
+            <div style="font-size:11.5px;color:#5C6B84">Coût annuel complet total</div>
+            <div style="font-size:22px;font-weight:700;color:#C23B3B;margin-top:6px">{{ portfolioTotals.coutAnnuelComplet }}</div>
+          </div>
+          <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:18px">
+            <div style="font-size:11.5px;color:#5C6B84">ROI net complet total</div>
+            <div style="font-size:22px;font-weight:700;color:#2454C7;margin-top:6px">{{ portfolioTotals.roiNetComplet }}</div>
+          </div>
+          <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:18px">
+            <div style="font-size:11.5px;color:#5C6B84">ROI % global</div>
+            <div style="font-size:22px;font-weight:700;color:#16233E;margin-top:6px">{{ portfolioTotals.roiPctComplet }}</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+          <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:20px">
+            <div style="font-size:13px;font-weight:700;color:#0B1F44;margin-bottom:12px">Initiatives les plus rentables</div>
+            <sc-for list="{{ topROI }}" as="ini" hint-placeholder-count="3">
+              <div onClick="{{ ini.onOpen }}" style="padding:9px 6px;border-bottom:1px solid #F0F2F6;cursor:pointer">
+                <div style="font-size:12.5px;font-weight:600;color:#16233E">{{ ini.product }}</div>
+                <div style="font-size:11.5px;color:#1E8E5A;font-weight:700">{{ ini.roiPctLabel }}</div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ topROI.length }}" hint-placeholder-val="{{ true }}"></sc-if>
+          </div>
+          <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:20px">
+            <div style="font-size:13px;font-weight:700;color:#0B1F44;margin-bottom:12px">Initiatives à faible valeur</div>
+            <sc-for list="{{ lowROI }}" as="ini" hint-placeholder-count="3">
+              <div onClick="{{ ini.onOpen }}" style="padding:9px 6px;border-bottom:1px solid #F0F2F6;cursor:pointer">
+                <div style="font-size:12.5px;font-weight:600;color:#16233E">{{ ini.product }}</div>
+                <div style="font-size:11.5px;color:#C23B3B;font-weight:700">{{ ini.roiPctLabel }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:#FFFFFF;border:1px solid #E2E6ED;border-radius:12px;padding:20px">
+            <div style="font-size:13px;font-weight:700;color:#0B1F44;margin-bottom:12px">Nécessitent davantage d'analyse</div>
+            <sc-for list="{{ needsAnalysis }}" as="ini" hint-placeholder-count="3">
+              <div onClick="{{ ini.onOpen }}" style="padding:9px 6px;border-bottom:1px solid #F0F2F6;cursor:pointer">
+                <div style="font-size:12.5px;font-weight:600;color:#16233E">{{ ini.product }}</div>
+                <div style="font-size:11.5px;color:#8592A8">Aucun ROI calculé</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+
+  <!-- ================= ASSISTANT ================= -->
+  <div onClick="{{ onToggleAssistant }}" style="position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:#2454C7;box-shadow:0 6px 18px rgba(36,84,199,0.35);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:250">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+  </div>
+
+  <sc-if value="{{ assistantOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;bottom:92px;right:24px;width:380px;max-width:calc(100vw - 48px);height:520px;max-height:calc(100vh - 130px);background:#FFFFFF;border-radius:14px;box-shadow:0 16px 48px rgba(11,31,68,0.28);display:flex;flex-direction:column;overflow:hidden;z-index:250;border:1px solid #E2E6ED">
+      <div style="padding:16px 18px;background:#0B1F44;display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+        <div>
+          <div style="font-size:13.5px;font-weight:700;color:#FFFFFF">Assistant portefeuille</div>
+          <div style="font-size:10.5px;color:#9FB3D9;margin-top:2px">Créez ou modifiez une initiative en langage naturel</div>
+        </div>
+        <div onClick="{{ onToggleAssistant }}" style="width:26px;height:26px;border-radius:7px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#FFFFFF;font-size:14px;flex-shrink:0">×</div>
+      </div>
+
+      <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px">
+        <sc-if value="{{ assistantEmpty }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:12px;color:#8592A8;line-height:1.6">Exemples :<br/>« Ajoute une initiative Claude Enterprise, éditeur Anthropic, statut En test »<br/>« Passe SmartSI en Déployé »<br/>« Change le responsable de n8n pour Julie Martin »</div>
+        </sc-if>
+        <sc-for list="{{ assistantMessages }}" as="m" hint-placeholder-count="0">
+          <div style="display:flex;justify-content:{{ m.align }}">
+            <div style="max-width:85%;padding:9px 12px;border-radius:10px;background:{{ m.bg }};color:{{ m.fg }};font-size:12.5px;line-height:1.5;white-space:pre-wrap">{{ m.text }}</div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ assistantBusy }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;justify-content:flex-start">
+            <div style="padding:9px 12px;border-radius:10px;background:#F0F3F9;color:#8592A8;font-size:12px">Réflexion…</div>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="padding:12px;border-top:1px solid #EEF1F5;display:flex;gap:8px;flex-shrink:0">
+        <input type="text" value="{{ assistantInput }}" onChange="{{ onAssistantInputChange }}" onKeyDown="{{ onAssistantKeyDown }}" placeholder="Votre demande…" style="flex:1;box-sizing:border-box;padding:9px 11px;border:1px solid #D9E0EB;border-radius:8px;font-size:12.5px;font-family:inherit"/>
+        <div onClick="{{ onSendAssistant }}" style="padding:9px 14px;border-radius:8px;background:#2454C7;color:#FFFFFF;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center">Envoyer</div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+let DATA = null;
+
+function badge(color) {
+  const map = {
+    green: { bg: '#E5F5EC', fg: '#1E8E5A' },
+    blue: { bg: '#E8EEFC', fg: '#2454C7' },
+    orange: { bg: '#FBEFDD', fg: '#B9770E' },
+    red: { bg: '#FBEAEA', fg: '#C23B3B' },
+    gray: { bg: '#EEF1F5', fg: '#5C6B84' },
+    teal: { bg: '#E3F3F5', fg: '#1F7A8C' },
+  };
+  return map[color] || map.gray;
+}
+
+function fmtEUR(n) {
+  if (n === null || n === undefined || !isFinite(n)) return '—';
+  return Math.round(n).toLocaleString('fr-FR') + ' €';
+}
+function fmtNum(n, d) {
+  if (n === null || n === undefined || !isFinite(n)) return '—';
+  return n.toLocaleString('fr-FR', { maximumFractionDigits: d ?? 0, minimumFractionDigits: 0 });
+}
+function fmtPct(n) {
+  if (n === null || n === undefined || !isFinite(n)) return '—';
+  return n.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' %';
+}
+function paleColor(hex) {
+  if (!hex || hex[0] !== '#') return '#F7F9FC';
+  const h = hex.replace('#', '');
+  const r = parseInt(h.substring(0, 2), 16), g = parseInt(h.substring(2, 4), 16), b = parseInt(h.substring(4, 6), 16);
+  const mix = c => Math.round(c + (255 - c) * 0.85);
+  return 'rgb(' + mix(r) + ',' + mix(g) + ',' + mix(b) + ')';
+}
+function fmtPayback(n) {
+  if (n === null || n === undefined || !isFinite(n) || n < 0) return 'Non atteint';
+  return fmtNum(n, 1) + ' mois';
+}
+
+function docItemDisplay(item) {
+  const href = item.url || item.fileDataUrl || '';
+  return { id: item.id, category: item.category, title: item.title, description: item.description || '', hasDescription: !!item.description, href, hasLink: !!href, noLink: !href };
+}
+
+class Component extends DCLogic {
+  state = {
+    ready: false,
+    initiatives: [],
+    view: 'dashboard',
+    selectedId: null,
+    selectedDomainId: null,
+    editingDraft: null,
+    isNew: false,
+    catalogMode: 'table',
+    search: '',
+    filterMacro: 'Tous', filterStatus: 'Tous', filterRisk: 'Tous', filterSouverainete: 'Tous', filterMoscow: 'Tous',
+    showPriorityExplain: false,
+    showROIExplain: false,
+    roiInputsScratch: null,
+    roiContextId: null,
+    showROICalcExplain: false,
+    docForm: { open: false, editingId: null, category: 'Présentations', title: '', description: '', url: '', fileName: '', fileDataUrl: '' },
+    schema: [],
+    schemaEditingMode: false,
+    schemaDraft: [],
+    dragItemId: null,
+    dragFromCatId: null,
+    itemMenu: { open: false, x: 0, y: 0, itemId: null },
+    customWidgets: [],
+    widgetForm: { open: false, title: '', format: 'donut', dimension: 'status', colorIdx: 0 },
+    expandedWidgetKey: null,
+    assistantOpen: false,
+    assistantMessages: [],
+    assistantInput: '',
+    assistantBusy: false,
+    okrItems: [
+      { title: 'Objectif', description: 'Industrialiser le portefeuille IA' },
+      { title: 'KR1', description: 'Réduire de moitié les initiatives « à clarifier »' },
+      { title: 'KR2', description: "ROI documenté sur 100% des initiatives grâce à l'apport des conseils des métiers" },
+      { title: 'KR3', description: "Passer de X à Y % d'initiatives déployées" },
+    ],
+    ctaItems: [
+      { title: 'Calculer le ROI', description: 'Lien direct vers les initiatives sans ROI renseigné' },
+      { title: 'Initiatives sans responsable', description: 'Liste à assigner rapidement' },
+      { title: 'Initiatives bloquées', description: 'Relancer les sujets sans progression depuis 30 jours' },
+    ],
+    schemaLegend: [
+      { id: 'legend-deployed', title: 'Déployées', symbol: 'line-solid', color: '#2454C7' },
+      { id: 'legend-test', title: 'En test', symbol: 'line-dashed', color: '#2454C7' },
+    ],
+  };
+
+  async componentDidMount() {
+    const mod = await import(window.__resources && window.__resources.dataModule ? window.__resources.dataModule : './data.js');
+    DATA = mod;
+    const initiatives = mod.loadData();
+    const initiativeIds = new Set(initiatives.map(i => i.id));
+    let schema = mod.loadPortfolioSchema();
+    if (!schema) {
+      schema = mod.buildDefaultPortfolioSchema(initiatives);
+      mod.savePortfolioSchema(schema);
+    } else {
+      // Drop references to initiatives that no longer exist (stale ids), then
+      // rebuild from scratch if that leaves the portfolio schema empty.
+      schema = schema.map(cat => Object.assign({}, cat, { items: (cat.items || []).filter(id => initiativeIds.has(id)) }));
+      const totalPlaced = schema.reduce((n, c) => n + c.items.length, 0);
+      if (totalPlaced === 0 && initiatives.length > 0) {
+        schema = mod.buildDefaultPortfolioSchema(initiatives);
+      }
+      mod.savePortfolioSchema(schema);
+    }
+    const customWidgets = mod.loadCustomWidgets();
+    this.setState({
+      ready: true,
+      initiatives,
+      roiInputsScratch: mod.defaultROIInputs(),
+      schema,
+      customWidgets,
+    });
+  }
+
+  persist(list) {
+    if (DATA) DATA.saveData(list);
+  }
+
+  navigate(view, extra) {
+    this.setState(Object.assign({ view, showPriorityExplain: false, showROIExplain: false }, extra || {}));
+  }
+
+  updateListItem(key, idx, field, value) {
+    this.setState(s => {
+      const list = s[key].slice();
+      list[idx] = Object.assign({}, list[idx], { [field]: value });
+      return { [key]: list };
+    });
+  }
+
+  addListItem(key, blank) {
+    this.setState(s => ({ [key]: s[key].concat([blank]) }));
+  }
+
+  removeListItem(key, idx) {
+    this.setState(s => ({ [key]: s[key].filter((_, i) => i !== idx) }));
+  }
+
+  openDetail(id) { this.navigate('detail', { selectedId: id }); }
+  openDomain(id) { this.navigate('domainDetail', { selectedDomainId: id }); }
+
+  openEdit(id) {
+    const ini = id ? this.state.initiatives.find(i => i.id === id) : DATA.newInitiative();
+    this.navigate('edit', { editingDraft: JSON.parse(JSON.stringify(ini)), isNew: !id });
+  }
+
+  cancelEdit() {
+    const back = this.state.isNew ? 'catalog' : 'detail';
+    this.navigate(back);
+  }
+
+  saveDraft() {
+    const draft = this.state.editingDraft;
+    let list = this.state.initiatives.slice();
+    const idx = list.findIndex(i => i.id === draft.id);
+    if (idx >= 0) list[idx] = draft; else list.push(draft);
+    this.persist(list);
+    this.navigate('detail', { initiatives: list, selectedId: draft.id, isNew: false });
+  }
+
+  deleteCurrent() {
+    const id = this.state.selectedId;
+    const list = this.state.initiatives.filter(i => i.id !== id);
+    this.persist(list);
+    this.navigate('catalog', { initiatives: list, selectedId: null });
+  }
+
+  patchInitiativeLive(id, patch) {
+    this.setState(s => {
+      const list = s.initiatives.map(i => i.id === id ? Object.assign({}, i, patch) : i);
+      this.persist(list);
+      return { initiatives: list };
+    });
+  }
+
+  toggleLiveLegendTag(id, legendId) {
+    const ini = this.state.initiatives.find(i => i.id === id);
+    if (!ini) return;
+    const tags = ini.legendTags || [];
+    const next = tags.includes(legendId) ? tags.filter(t => t !== legendId) : tags.concat([legendId]);
+    this.patchInitiativeLive(id, { legendTags: next });
+  }
+
+  toggleLiveFranceFlag(id, field) {
+    const ini = this.state.initiatives.find(i => i.id === id);
+    if (!ini) return;
+    this.patchInitiativeLive(id, { [field]: !ini[field] });
+  }
+
+  setDraft(mutator) {
+    this.setState(s => {
+      const d = JSON.parse(JSON.stringify(s.editingDraft));
+      mutator(d);
+      return { editingDraft: d };
+    });
+  }
+
+  openNewDocForm() {
+    this.setState({ docForm: { open: true, editingId: null, category: 'Présentations', title: '', description: '', url: '', fileName: '', fileDataUrl: '' } });
+  }
+
+  openEditDocForm(item) {
+    this.setState({ docForm: { open: true, editingId: item.id, category: item.category, title: item.title, description: item.description || '', url: item.url || '', fileName: item.fileName || '', fileDataUrl: item.fileDataUrl || '' } });
+  }
+
+  closeDocForm() {
+    this.setState({ docForm: { open: false, editingId: null, category: 'Présentations', title: '', description: '', url: '', fileName: '', fileDataUrl: '' } });
+  }
+
+  setDocForm(field, value) {
+    this.setState(s => ({ docForm: Object.assign({}, s.docForm, { [field]: value }) }));
+  }
+
+  onDocFormFile(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.setState(s => ({ docForm: Object.assign({}, s.docForm, { fileName: file.name, fileDataUrl: reader.result }) }));
+    };
+    reader.readAsDataURL(file);
+  }
+
+  validateDocForm() {
+    const f = this.state.docForm;
+    const title = (f.title || '').trim();
+    if (!title) return;
+    this.setDraft(d => {
+      const items = (d.documentation.items || []).slice();
+      const entry = { id: f.editingId || DATA.makeId(), category: f.category, title, description: (f.description || '').trim(), url: (f.url || '').trim(), fileName: f.fileName || '', fileDataUrl: f.fileDataUrl || '' };
+      const idx = items.findIndex(it => it.id === entry.id);
+      if (idx >= 0) items[idx] = entry; else items.push(entry);
+      d.documentation.items = items;
+    });
+    this.closeDocForm();
+  }
+
+  deleteDocItem(id) {
+    this.setDraft(d => {
+      d.documentation.items = (d.documentation.items || []).filter(it => it.id !== id);
+    });
+  }
+
+  onSchemaDragStart(itemId, catId) {
+    this.setState({ dragItemId: itemId, dragFromCatId: catId });
+  }
+
+  onSchemaDragEnd() {
+    this.setState({ dragItemId: null, dragFromCatId: null });
+  }
+
+  onSchemaDrop(toCatId) {
+    const { dragItemId, dragFromCatId } = this.state;
+    if (!dragItemId || !dragFromCatId || dragFromCatId === toCatId) {
+      this.setState({ dragItemId: null, dragFromCatId: null });
+      return;
+    }
+    this.setState(s => {
+      const schema = JSON.parse(JSON.stringify(s.schema));
+      const from = schema.find(c => c.id === dragFromCatId);
+      const to = schema.find(c => c.id === toCatId);
+      if (from) from.items = from.items.filter(id => id !== dragItemId);
+      if (to && !to.items.includes(dragItemId)) to.items.push(dragItemId);
+      DATA.savePortfolioSchema(schema);
+      return { schema, dragItemId: null, dragFromCatId: null };
+    });
+  }
+
+  openItemMenu(itemId, x, y) {
+    this.setState({ itemMenu: { open: true, x, y, itemId } });
+  }
+
+  closeItemMenu() {
+    this.setState({ itemMenu: { open: false, x: 0, y: 0, itemId: null } });
+  }
+
+  duplicateSchemaItem(itemId, toCatId) {
+    this.setState(s => {
+      const schema = JSON.parse(JSON.stringify(s.schema));
+      const to = schema.find(c => c.id === toCatId);
+      if (to && !to.items.includes(itemId)) to.items.push(itemId);
+      DATA.savePortfolioSchema(schema);
+      return { schema, itemMenu: { open: false, x: 0, y: 0, itemId: null } };
+    });
+  }
+
+  toggleAssistant() {
+    this.setState(s => ({ assistantOpen: !s.assistantOpen }));
+  }
+
+  botCreateInitiative(input) {
+    const base = DATA.newInitiative();
+    const macroDomain = (input.macroDomain && DATA.MACRO_DOMAINS.some(d => d.name === input.macroDomain)) ? input.macroDomain : DATA.MACRO_DOMAINS[0].name;
+    const status = (input.status && DATA.STATUS_LIST.includes(input.status)) ? input.status : 'Non évalué';
+    const ini = Object.assign({}, base, {
+      id: DATA.makeId(),
+      product: input.product || 'Nouvelle initiative',
+      editor: input.editor || '',
+      macroDomain,
+      status,
+    });
+    ini.description = Object.assign({}, base.description, {
+      description: input.description || '',
+      useCase: input.useCase || '',
+      businessValue: input.businessValue || '',
+      comments: input.comments || '',
+    });
+    ini.risksData = Object.assign({}, base.risksData, (input.riskLevel && DATA.RISK_LIST.includes(input.riskLevel)) ? { level: input.riskLevel } : {});
+    ini.governance = Object.assign({}, base.governance, input.responsible ? { responsible: input.responsible } : {});
+    const list = this.state.initiatives.concat([ini]);
+    this.setState({ initiatives: list });
+    this.persist(list);
+    return 'Initiative "' + ini.product + '" créée (statut : ' + status + ', domaine : ' + macroDomain + ').';
+  }
+
+  botUpdateInitiative(input) {
+    const name = (input.product || '').toLowerCase().trim();
+    if (!name) return "Précisez le nom de l'initiative à modifier.";
+    const match = this.state.initiatives.find(i => i.product.toLowerCase() === name)
+      || this.state.initiatives.find(i => i.product.toLowerCase().includes(name));
+    if (!match) return 'Aucune initiative trouvée avec le nom "' + input.product + '".';
+    const updated = JSON.parse(JSON.stringify(match));
+    const changed = [];
+    if (input.editor) { updated.editor = input.editor; changed.push('éditeur'); }
+    if (input.macroDomain && DATA.MACRO_DOMAINS.some(d => d.name === input.macroDomain)) { updated.macroDomain = input.macroDomain; changed.push('macro-domaine'); }
+    if (input.status && DATA.STATUS_LIST.includes(input.status)) { updated.status = input.status; changed.push('statut'); }
+    if (input.description) { updated.description.description = input.description; changed.push('description'); }
+    if (input.useCase) { updated.description.useCase = input.useCase; changed.push("cas d'usage"); }
+    if (input.businessValue) { updated.description.businessValue = input.businessValue; changed.push('valeur métier'); }
+    if (input.comments) { updated.description.comments = input.comments; changed.push('commentaires'); }
+    if (input.riskLevel && DATA.RISK_LIST.includes(input.riskLevel)) { updated.risksData.level = input.riskLevel; changed.push('risque'); }
+    if (input.responsible) { updated.governance.responsible = input.responsible; changed.push('responsable'); }
+    if (!changed.length) return 'Aucun champ valide fourni pour "' + updated.product + '".';
+    const list = this.state.initiatives.map(i => i.id === match.id ? updated : i);
+    this.setState({ initiatives: list });
+    this.persist(list);
+    return 'Initiative "' + updated.product + '" mise à jour (' + changed.join(', ') + ').';
+  }
+
+  async sendAssistant() {
+    const text = (this.state.assistantInput || '').trim();
+    if (!text || this.state.assistantBusy) return;
+    const priorMsgs = this.state.assistantMessages;
+    this.setState({
+      assistantMessages: priorMsgs.concat([{ role: 'user', text }]),
+      assistantInput: '',
+      assistantBusy: true,
+    });
+
+    const fieldSchema = {
+      type: 'object',
+      properties: {
+        product: { type: 'string', description: 'Nom de la solution' },
+        editor: { type: 'string', description: 'Éditeur' },
+        macroDomain: { type: 'string', enum: DATA.MACRO_DOMAINS.map(d => d.name) },
+        status: { type: 'string', enum: DATA.STATUS_LIST },
+        description: { type: 'string' },
+        useCase: { type: 'string', description: "Cas d'usage" },
+        businessValue: { type: 'string', description: 'Valeur métier' },
+        comments: { type: 'string' },
+        riskLevel: { type: 'string', enum: DATA.RISK_LIST },
+        responsible: { type: 'string' },
+      },
+      required: ['product'],
+    };
+    const tools = [
+      { name: 'create_initiative', description: 'Crée une nouvelle initiative IA dans le portefeuille.', input_schema: fieldSchema, run: async (input) => this.botCreateInitiative(input) },
+      { name: 'update_initiative', description: "Modifie une initiative existante identifiée par son nom (champ product). Ne fournir que les champs à changer.", input_schema: fieldSchema, run: async (input) => this.botUpdateInitiative(input) },
+    ];
+    const initiativesSummary = this.state.initiatives.map(i => i.product + ' [' + i.status + ', ' + i.macroDomain + ']').join(' ; ');
+
+    try {
+      const history = this.state.assistantMessages.concat([{ role: 'user', text }]).map(m => ({ role: m.role, content: m.text }));
+      const result = await window.claude.complete({
+        system: 'Tu es l\'assistant intégré du "Catalogue IA DWP", un outil de pilotage de portefeuille d\'initiatives IA. Tu peux créer ou modifier des initiatives via les outils fournis, uniquement dans les limites de ces outils (tu ne peux pas modifier le design ou le code de l\'application). Initiatives actuelles : ' + initiativesSummary + '. Réponds toujours en français, de façon brève et professionnelle. Si une action a été exécutée, confirme précisément ce qui a changé.',
+        messages: history,
+        tools,
+        max_tokens: 1024,
+      });
+      this.setState(s => ({ assistantMessages: s.assistantMessages.concat([{ role: 'assistant', text: result }]), assistantBusy: false }));
+    } catch (e) {
+      this.setState(s => ({ assistantMessages: s.assistantMessages.concat([{ role: 'assistant', text: "Erreur : " + (e && e.message ? e.message : 'échec de la requête.') }]), assistantBusy: false }));
+    }
+  }
+
+  openExpandedWidget(key) {
+    this.setState({ expandedWidgetKey: key });
+  }
+
+  closeExpandedWidget() {
+    this.setState({ expandedWidgetKey: null });
+  }
+
+  openWidgetForm() {
+    this.setState({ widgetForm: { open: true, title: '', format: 'donut', dimension: 'status', colorIdx: 0 } });
+  }
+
+  closeWidgetForm() {
+    this.setState(s => ({ widgetForm: Object.assign({}, s.widgetForm, { open: false }) }));
+  }
+
+  setWidgetFormField(field, value) {
+    this.setState(s => ({ widgetForm: Object.assign({}, s.widgetForm, { [field]: value }) }));
+  }
+
+  saveWidget() {
+    const f = this.state.widgetForm;
+    const title = (f.title || '').trim() || 'Graphique personnalisé';
+    const widget = { id: DATA.makeId(), title, format: f.format, dimension: f.dimension, colorIdx: f.colorIdx };
+    this.setState(s => {
+      const customWidgets = s.customWidgets.concat([widget]);
+      DATA.saveCustomWidgets(customWidgets);
+      return { customWidgets, widgetForm: Object.assign({}, s.widgetForm, { open: false }) };
+    });
+  }
+
+  deleteWidget(id) {
+    this.setState(s => {
+      const customWidgets = s.customWidgets.filter(w => w.id !== id);
+      DATA.saveCustomWidgets(customWidgets);
+      return { customWidgets };
+    });
+  }
+
+  toggleSchemaEditor() {
+    if (this.state.schemaEditingMode) {
+      this.setState({ schemaEditingMode: false });
+    } else {
+      this.setState(s => ({ schemaEditingMode: true, schemaDraft: JSON.parse(JSON.stringify(s.schema)) }));
+    }
+  }
+
+  cancelSchemaEdit() {
+    this.setState({ schemaEditingMode: false, schemaDraft: [] });
+  }
+
+  saveSchema() {
+    const schema = this.state.schemaDraft;
+    DATA.savePortfolioSchema(schema);
+    this.setState({ schema, schemaEditingMode: false, schemaDraft: [] });
+  }
+
+  setSchemaDraft(mutator) {
+    this.setState(s => {
+      const draft = JSON.parse(JSON.stringify(s.schemaDraft));
+      mutator(draft);
+      return { schemaDraft: draft };
+    });
+  }
+
+  addSchemaCategory() {
+    this.setSchemaDraft(draft => {
+      draft.push({ id: DATA.makeId(), title: 'Nouvelle catégorie', subtitle: '', items: [] });
+    });
+  }
+
+  removeSchemaCategory(catId) {
+    this.setSchemaDraft(draft => {
+      const idx = draft.findIndex(c => c.id === catId);
+      if (idx >= 0) draft.splice(idx, 1);
+    });
+  }
+
+  setSchemaCategoryField(catId, field, value) {
+    this.setSchemaDraft(draft => {
+      const c = draft.find(x => x.id === catId);
+      if (c) c[field] = value;
+    });
+  }
+
+  addSchemaItem(catId, initiativeId) {
+    if (!initiativeId) return;
+    this.setSchemaDraft(draft => {
+      const c = draft.find(x => x.id === catId);
+      if (c && !c.items.includes(initiativeId)) c.items.push(initiativeId);
+    });
+  }
+
+  removeSchemaItem(catId, initiativeId) {
+    this.setSchemaDraft(draft => {
+      const c = draft.find(x => x.id === catId);
+      if (c) c.items = c.items.filter(id => id !== initiativeId);
+    });
+  }
+
+  setROIInput(key, value) {
+    this.setState(s => ({ roiInputsScratch: Object.assign({}, s.roiInputsScratch, { [key]: value === '' ? 0 : +value }) }));
+  }
+
+  saveROIToInitiative() {
+    const id = this.state.roiContextId;
+    if (!id) return;
+    const list = this.state.initiatives.map(i => i.id === id ? Object.assign({}, i, { roi: { inputs: Object.assign({}, this.state.roiInputsScratch), calcDate: new Date().toISOString().slice(0, 10) } }) : i);
+    this.persist(list);
+    this.navigate('detail', { initiatives: list, selectedId: id });
+  }
+
+  openROIForInitiative(id) {
+    const ini = this.state.initiatives.find(i => i.id === id);
+    const inputs = (ini && ini.roi && ini.roi.inputs) ? Object.assign({}, ini.roi.inputs) : DATA.defaultROIInputs();
+    this.navigate('roi', { roiContextId: id, roiInputsScratch: inputs, showROICalcExplain: false });
+  }
+
+  buildCurvePoints(monthlySeries, key, maxVal) {
+    const W = 300, H = 150, PAD = 8;
+    const n = monthlySeries.length - 1;
+    return monthlySeries.map((m, i) => {
+      const x = PAD + (i / n) * (W - PAD * 2);
+      const v = maxVal > 0 ? m[key] / maxVal : 0;
+      const y = H - PAD - v * (H - PAD * 2);
+      return x.toFixed(1) + ',' + y.toFixed(1);
+    }).join(' ');
+  }
+
+  buildWaterfall(inputs, results) {
+    const items = [
+      { label: 'Valeur annuelle', value: results.valeurAnnuelle, color: '#1E8E5A' },
+      { label: 'Licences', value: -(inputs.L * inputs.U * 12), color: '#C23B3B' },
+      { label: 'Déploiement', value: -inputs.D, color: '#C23B3B' },
+      { label: 'Intégration', value: -inputs.I, color: '#C23B3B' },
+      { label: 'Cond. changement', value: -inputs.C, color: '#C23B3B' },
+      { label: 'Support', value: -inputs.SUP, color: '#C23B3B' },
+      { label: 'ROI net complet', value: results.roiNetComplet, color: '#2454C7' },
+    ];
+    const maxAbs = Math.max(...items.map(it => Math.abs(it.value)), 1);
+    return items.map(it => ({
+      label: it.label,
+      color: it.color,
+      valueLabel: fmtEUR(it.value),
+      heightPct: Math.max(4, Math.round((Math.abs(it.value) / maxAbs) * 100)),
+    }));
+  }
+
+  buildBreakevenLabel(monthlySeries) {
+    for (let i = 0; i < monthlySeries.length; i++) {
+      if (monthlySeries[i].cumValue >= monthlySeries[i].cumCost) return 'Mois ' + monthlySeries[i].month;
+    }
+    return 'Non atteint sur 12 mois';
+  }
+
+  renderVals() {
+    const s = this.state;
+    if (!s.ready || !DATA) {
+      return { notReady: true, ready: false };
+    }
+    const initiatives = s.initiatives;
+    const total = initiatives.length;
+
+    const enriched = initiatives.map(ini => {
+      const pr = DATA.computePriority(ini);
+      const stC = badge(DATA.statusColor(ini.status));
+      const riskC = badge(DATA.riskColor(ini.risksData.level));
+      const priC = badge(DATA.priorityColor(pr.bucket));
+      return Object.assign({}, ini, {
+        priorityScore: pr.score, priorityBucket: pr.bucket, priorityBreakdown: pr.breakdown, roiPctComputed: pr.roiPct,
+        statusBg: stC.bg, statusFg: stC.fg, riskBg: riskC.bg, riskFg: riskC.fg, priBg: priC.bg, priFg: priC.fg,
+      });
+    });
+
+    const byId = {};
+    enriched.forEach(e => byId[e.id] = e);
+
+    // ---- nav ----
+    const navDefs = [
+      ['dashboard', 'Dashboard exécutif'],
+      ['domains', 'Vue par macro-domaine'],
+      ['roi', 'Calculatrice ROI'],
+      ['portfolio', 'Synthèse ROI portefeuille'],
+    ];
+    const navItems = navDefs.map(([v, label]) => {
+      const active = s.view === v || (v === 'catalog' && (s.view === 'catalog')) || (v === 'domains' && (s.view === 'domains' || s.view === 'domainDetail'));
+      return {
+        label,
+        onClick: () => (v === 'roi' ? this.navigate('roi', { roiContextId: null, roiInputsScratch: DATA.defaultROIInputs() }) : this.navigate(v)),
+        bg: active ? 'rgba(255,255,255,0.08)' : 'transparent',
+        accent: active ? '#2454C7' : 'transparent',
+        dot: active ? '#5C8CF0' : '#4A5B82',
+        color: active ? '#FFFFFF' : '#B7C1D9',
+        weight: active ? '700' : '500',
+      };
+    });
+
+    // ---- filters options ----
+    const macroOptions = DATA.MACRO_DOMAINS.map(d => d.name);
+    const statusOptions = DATA.STATUS_LIST;
+    const riskOptions = DATA.RISK_LIST;
+    const souvOptions = DATA.SOUVERAINETE_LIST;
+    const moscowOptions = DATA.MOSCOW_LIST;
+    const levelOptions = DATA.LEVEL_LIST;
+
+    // ---- dashboard ----
+    const countBy = (arr, key) => {
+      const m = {};
+      arr.forEach(i => { m[key(i)] = (m[key(i)] || 0) + 1; });
+      return m;
+    };
+    const statusCounts = countBy(enriched, i => i.status);
+    const riskCounts = countBy(enriched, i => i.risksData.level);
+    const domainCounts = countBy(enriched, i => i.macroDomain);
+    const priorityHaute = enriched.filter(i => i.priorityBucket === 'Haute').length;
+    const distinctSolutions = new Set(enriched.map(i => i.product)).size;
+
+    // ---- generic dimension bucketing (for KPI/donut/bar widgets, native + custom) ----
+    const dimensionDefs = {
+      status: { title: 'Répartition par statut', getVal: i => i.status, order: statusOptions, colorFn: v => badge(DATA.statusColor(v)).fg },
+      risk: { title: 'Répartition par niveau de risque', getVal: i => i.risksData.level, order: riskOptions, colorFn: v => badge(DATA.riskColor(v)).fg },
+      priority: { title: 'Répartition par priorité', getVal: i => i.priorityBucket, order: ['Haute', 'Moyenne', 'Basse', 'À clarifier'], colorFn: v => badge(DATA.priorityColor(v)).fg },
+      domain: { title: 'Répartition par macro-domaine', getVal: i => i.macroDomain, order: DATA.MACRO_DOMAINS.map(d => d.name), colorFn: null },
+      moscow: { title: 'Répartition MOSCOW', getVal: i => i.prioritization.moscow, order: moscowOptions, colorFn: null },
+      souverainete: { title: 'Répartition par souveraineté', getVal: i => i.souverainete, order: souvOptions, colorFn: null },
+    };
+    const buildBuckets = (dimension, palette) => {
+      const def = dimensionDefs[dimension] || dimensionDefs.status;
+      const theme = palette || DATA.badgePalette();
+      const counts = countBy(enriched, def.getVal);
+      const labels = def.order && def.order.length ? def.order : Object.keys(counts);
+      return labels.map((label, idx) => {
+        const items = enriched.filter(i => def.getVal(i) === label);
+        const color = def.colorFn ? def.colorFn(label) : theme[idx % theme.length];
+        return {
+          label, count: items.length,
+          pct: total ? Math.round((items.length / total) * 100) : 0,
+          color,
+          items: items.map(i => ({ id: i.id, product: i.product, editor: i.editor, onOpen: () => { this.closeExpandedWidget(); this.openDetail(i.id); } })),
+          noItems: items.length === 0,
+        };
+      }).filter(b => b.count > 0 || !def.colorFn);
+    };
+    const buildDonutSegments = (buckets, radius) => {
+      const nz = buckets.filter(b => b.count > 0);
+      const CIRC = 2 * Math.PI * (radius || 38);
+      let acc = 0;
+      return nz.map(b => {
+        const len = (b.pct / 100) * CIRC;
+        const seg = { color: b.color, dasharray: len.toFixed(1) + ' ' + (CIRC - len).toFixed(1), dashoffset: (-acc).toFixed(1) };
+        acc += len;
+        return seg;
+      });
+    };
+
+    const domainBars = DATA.MACRO_DOMAINS.map(d => ({
+      label: d.short, count: domainCounts[d.name] || 0,
+      pct: total ? Math.round(((domainCounts[d.name] || 0) / total) * 100) : 0,
+    }));
+    const statusBars = statusOptions.map(st => ({
+      label: st, count: statusCounts[st] || 0,
+      pct: total ? Math.round(((statusCounts[st] || 0) / total) * 100) : 0,
+      color: badge(DATA.statusColor(st)).fg,
+    }));
+    const riskBars = riskOptions.map(rk => ({
+      label: rk, count: riskCounts[rk] || 0,
+      pct: total ? Math.round(((riskCounts[rk] || 0) / total) * 100) : 0,
+      color: badge(DATA.riskColor(rk)).fg,
+    }));
+
+    const kpiCards = [
+      {
+        label: 'ROI calculés', value: enriched.filter(i => i.roi.inputs).length, color: '#0B7285',
+        onOpen: () => this.openExpandedWidget('native:roi'),
+        iconBg: '#E3F3F5', iconSvg: { __html: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B7285" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>' },
+        subStats: (() => {
+          const withR = enriched.filter(i => i.roi.inputs);
+          const valSum = withR.reduce((acc, i) => acc + DATA.computeROI(i.roi.inputs).valeurAnnuelle, 0);
+          const roiAvg = withR.length ? withR.reduce((acc, i) => acc + DATA.computeROI(i.roi.inputs).roiPctComplet, 0) / withR.length : null;
+          return [
+            { label: 'Valeur annuelle totale', value: fmtEUR(valSum), color: '#16233E' },
+            { label: 'ROI moyen', value: fmtPct(roiAvg), color: '#16233E' },
+            { label: 'Taux de couverture ROI', value: fmtPct(enriched.length ? (withR.length / enriched.length) * 100 : null), color: '#16233E' },
+          ];
+        })(),
+      },
+    ];
+
+    const donutSegments = buildDonutSegments(statusBars, 58);
+
+    const withROITrend = enriched.filter(i => i.roi.inputs).slice().sort((a, b) => (a.roi.calcDate || '').localeCompare(b.roi.calcDate || ''));
+    const hasTrend = withROITrend.length >= 2;
+    const noTrend = !hasTrend;
+    let trendValuePoints = '', trendCostPoints = '', trendValueArea = '', trendLabels = [];
+    if (hasTrend) {
+      let cumV = 0, cumC = 0;
+      const series = withROITrend.map(i => {
+        const r = DATA.computeROI(i.roi.inputs);
+        cumV += r.valeurAnnuelle; cumC += r.coutAnnuelComplet;
+        return { cumV, cumC, date: i.roi.calcDate };
+      });
+      const maxVal = Math.max(...series.map(s => Math.max(s.cumV, s.cumC)), 1);
+      const W = 460, H = 170, PAD = 8;
+      const n = series.length - 1;
+      const pt = (i, key) => {
+        const x = PAD + (i / n) * (W - PAD * 2);
+        const v = maxVal > 0 ? series[i][key] / maxVal : 0;
+        const y = H - PAD - v * (H - PAD * 2);
+        return { x, y };
+      };
+      const valuePts = series.map((s, i) => pt(i, 'cumV'));
+      const costPts = series.map((s, i) => pt(i, 'cumC'));
+      trendValuePoints = valuePts.map(p => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
+      trendCostPoints = costPts.map(p => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
+      trendValueArea = trendValuePoints + ' ' + (W - PAD) + ',' + (H - PAD) + ' ' + PAD + ',' + (H - PAD);
+      const step = Math.max(1, Math.ceil(series.length / 5));
+      trendLabels = series.filter((s, i) => i % step === 0 || i === series.length - 1).map(s => s.date);
+    }
+
+    // ---- schema legend ----
+    const LEGEND_ICONS = ['🔥', '⭐', '🚀', '✅', '⚠️', '🔒', '🌍', '📈', '🤖', '💡', '🎯', '🧪'];
+    const legendSymbolPreview = (sym, color) => {
+      if (sym === 'line-solid') return { __html: '<span style="width:20px;height:0;border-top:2px solid ' + color + ';display:inline-block"></span>' };
+      if (sym === 'line-dashed') return { __html: '<span style="width:20px;height:0;border-top:2px dashed ' + color + ';display:inline-block"></span>' };
+      if (sym === 'dot-large') return { __html: '<span style="width:14px;height:14px;border-radius:50%;background:' + color + ';display:inline-block"></span>' };
+      if (sym === 'dot-small') return { __html: '<span style="width:8px;height:8px;border-radius:50%;background:' + color + ';display:inline-block"></span>' };
+      if (sym === 'color-fill') return { __html: '<span style="width:20px;height:14px;border-radius:4px;background:' + color + ';display:inline-block"></span>' };
+      return { __html: '<span style="font-size:14px;line-height:1">' + sym + '</span>' };
+    };
+    const isLegendLine = sym => sym === 'line-solid' || sym === 'line-dashed';
+    const isLegendFill = sym => sym === 'color-fill';
+    const LEGEND_SYMBOLS = ['line-solid', 'line-dashed', 'dot-small', 'dot-large'];
+    const franceFlagPreviewGlobal = { __html: '<svg width="20" height="14" viewBox="0 0 15 10" style="border-radius:2px;display:block"><rect x="0" y="0" width="5" height="10" fill="#0055A4"></rect><rect x="5" y="0" width="5" height="10" fill="#FFFFFF"></rect><rect x="10" y="0" width="5" height="10" fill="#EF4135"></rect></svg>' };
+    const starFlagPreviewGlobal = { __html: '<span style="font-size:14px;color:#B9770E;line-height:1">★</span>' };
+    const schemaLegendView = [
+      { title: 'Produit en France', preview: franceFlagPreviewGlobal },
+      { title: 'Produit en global, à faire produire en France aussi', preview: starFlagPreviewGlobal },
+    ].concat(s.schemaLegend.map(lg => ({
+      title: lg.title,
+      preview: legendSymbolPreview(lg.symbol, lg.color),
+    })));
+    const schemaLegendEdit = s.schemaLegend.map((lg, idx) => ({
+      title: lg.title,
+      onTitle: e => this.updateListItem('schemaLegend', idx, 'title', e.target.value),
+      onDelete: () => this.removeListItem('schemaLegend', idx),
+      symbolOptions: LEGEND_SYMBOLS.map(sym => ({
+        preview: legendSymbolPreview(sym, lg.symbol === sym ? lg.color : '#8592A8'),
+        bg: lg.symbol === sym ? '#E8EEFC' : '#F7F9FC',
+        borderColor: lg.symbol === sym ? '#2454C7' : '#E2E6ED',
+        onClick: () => this.updateListItem('schemaLegend', idx, 'symbol', sym),
+      })),
+      iconOptions: LEGEND_ICONS.map(ic => ({
+        preview: legendSymbolPreview(ic, lg.color),
+        bg: lg.symbol === ic ? '#E8EEFC' : '#F7F9FC',
+        borderColor: lg.symbol === ic ? '#2454C7' : '#E2E6ED',
+        onClick: () => this.updateListItem('schemaLegend', idx, 'symbol', ic),
+      })),
+      fillOption: {
+        preview: legendSymbolPreview('color-fill', lg.color),
+        bg: lg.symbol === 'color-fill' ? '#E8EEFC' : '#F7F9FC',
+        borderColor: lg.symbol === 'color-fill' ? '#2454C7' : '#E2E6ED',
+        onClick: () => this.updateListItem('schemaLegend', idx, 'symbol', 'color-fill'),
+      },
+      colorOptions: DATA.MARKER_COLORS.map(c => ({
+        color: c,
+        selectedShadow: lg.color === c ? ('0 0 0 2px #FFFFFF, 0 0 0 4px ' + c) : 'none',
+        onClick: () => this.updateListItem('schemaLegend', idx, 'color', c),
+      })),
+    }));
+    const onAddLegendItem = () => this.addListItem('schemaLegend', { id: DATA.makeId(), title: 'Nouvelle légende', symbol: 'dot-small', color: '#2454C7' });
+    const legendById = {};
+    s.schemaLegend.forEach(lg => { legendById[lg.id] = lg; });
+    const legendBadgesFor = (ini) => (ini.legendTags || []).map(tid => legendById[tid]).filter(Boolean).map(lg => ({
+      preview: legendSymbolPreview(lg.symbol, lg.color),
+      title: lg.title,
+    }));
+    // Computes how assigned legend tags should render on an initiative's name box:
+    // lines surround the name, a color-fill paints the box (pale, readable), others (dot/icon) badge to the left.
+    const computeLegendVisual = (ini) => {
+      const tags = (ini.legendTags || []).map(tid => legendById[tid]).filter(Boolean);
+      const lineTag = tags.find(lg => isLegendLine(lg.symbol));
+      const fillTag = tags.find(lg => isLegendFill(lg.symbol));
+      const badgeTags = tags.filter(lg => !isLegendLine(lg.symbol) && !isLegendFill(lg.symbol));
+      return {
+        border: lineTag ? ((lineTag.symbol === 'line-dashed' ? '2px dashed ' : '2px solid ') + lineTag.color) : null,
+        fill: fillTag ? paleColor(fillTag.color) : null,
+        badges: badgeTags.map(lg => ({ preview: legendSymbolPreview(lg.symbol, lg.color), title: lg.title })),
+      };
+    };
+
+    // ---- widget expand / custom widgets ----
+    const onOpenDonutWidget = () => this.openExpandedWidget('native:status');
+    const onOpenDomainWidget = () => this.openExpandedWidget('native:domain');
+    const stopPropagation = e => e.stopPropagation();
+
+    let expandedWidget = null;
+    if (s.expandedWidgetKey) {
+      const key = s.expandedWidgetKey;
+      if (key === 'native:roi') {
+        const withR = enriched.filter(i => i.roi.inputs);
+        const noR = enriched.filter(i => !i.roi.inputs);
+        expandedWidget = {
+          title: 'ROI calculés', subtitle: 'Initiatives avec et sans calcul ROI enregistré',
+          buckets: [
+            { label: 'Avec ROI calculé', count: withR.length, color: '#0B7285', noItems: withR.length === 0, items: withR.map(i => ({ id: i.id, product: i.product, editor: i.editor, onOpen: () => { this.closeExpandedWidget(); this.openDetail(i.id); } })) },
+            { label: 'Sans ROI calculé', count: noR.length, color: '#B0B9C9', noItems: noR.length === 0, items: noR.map(i => ({ id: i.id, product: i.product, editor: i.editor, onOpen: () => { this.closeExpandedWidget(); this.openDetail(i.id); } })) },
+          ],
+        };
+      } else if (key.indexOf('native:') === 0) {
+        const dim = key.slice(7);
+        const def = dimensionDefs[dim] || dimensionDefs.status;
+        expandedWidget = { title: def.title, subtitle: 'Cliquez une initiative pour ouvrir sa fiche', buckets: buildBuckets(dim) };
+      } else if (key.indexOf('custom:') === 0) {
+        const id = key.slice(7);
+        const w = s.customWidgets.find(x => x.id === id);
+        if (w) {
+          const dim = dimensionDefs[w.dimension] ? w.dimension : 'status';
+          const theme = DATA.WIDGET_COLOR_THEMES[w.colorIdx % DATA.WIDGET_COLOR_THEMES.length];
+          expandedWidget = { title: w.title, subtitle: dimensionDefs[dim].title, buckets: buildBuckets(dim, theme) };
+        }
+      }
+    }
+
+    const customWidgets = s.customWidgets.map(w => {
+      const dim = dimensionDefs[w.dimension] ? w.dimension : 'status';
+      const theme = DATA.WIDGET_COLOR_THEMES[w.colorIdx % DATA.WIDGET_COLOR_THEMES.length];
+      const buckets = buildBuckets(dim, theme);
+      const totalW = buckets.reduce((a, b) => a + b.count, 0);
+      return {
+        id: w.id, title: w.title, subtitle: dimensionDefs[dim].title,
+        isKpi: w.format === 'kpi', isDonut: w.format === 'donut', isBar: w.format === 'bar',
+        mainColor: theme[0], kpiValue: totalW,
+        total: totalW, segments: buildDonutSegments(buckets, 38),
+        buckets,
+        onOpen: () => this.openExpandedWidget('custom:' + w.id),
+        onDelete: e => { e.stopPropagation(); this.deleteWidget(w.id); },
+      };
+    });
+
+    const widgetFormatOptions = DATA.WIDGET_FORMATS.map(fmt => ({
+      label: { donut: 'Donut', bar: 'Barres', kpi: 'Chiffre clé' }[fmt],
+      onSelect: () => this.setWidgetFormField('format', fmt),
+      bg: s.widgetForm.format === fmt ? '#2454C7' : '#F7F9FC',
+      fg: s.widgetForm.format === fmt ? '#FFFFFF' : '#5C6B84',
+      border: s.widgetForm.format === fmt ? '#2454C7' : '#E2E6ED',
+    }));
+    const widgetDimensionOptions = DATA.WIDGET_DIMENSIONS.map(dim => ({
+      value: dim, label: (dimensionDefs[dim] || {}).title || dim,
+      onSelect: () => this.setWidgetFormField('dimension', dim),
+      bg: s.widgetForm.dimension === dim ? '#2454C7' : '#F7F9FC',
+      fg: s.widgetForm.dimension === dim ? '#FFFFFF' : '#5C6B84',
+      border: s.widgetForm.dimension === dim ? '#2454C7' : '#E2E6ED',
+    }));
+    const widgetColorOptions = DATA.WIDGET_COLOR_THEMES.map((theme, idx) => ({
+      swatch: theme[0],
+      onSelect: () => this.setWidgetFormField('colorIdx', idx),
+      selectedShadow: s.widgetForm.colorIdx === idx ? ('0 0 0 2px #FFFFFF, 0 0 0 4px ' + theme[0]) : 'none',
+    }));
+
+    const topPriority = enriched.filter(i => i.priorityBucket === 'Haute').sort((a, b) => b.priorityScore - a.priorityScore).slice(0, 5)
+      .map(i => ({ id: i.id, product: i.product, macroDomain: i.macroDomain, priorityBucket: i.priorityBucket, badgeBg: i.priBg, badgeFg: i.priFg, onOpen: () => this.openDetail(i.id) }));
+    const toClarify = enriched.filter(i => i.priorityBucket === 'À clarifier').slice(0, 6)
+      .map(i => ({ id: i.id, product: i.product, macroDomain: i.macroDomain, onOpen: () => this.openDetail(i.id) }));
+    const noResponsible = enriched.filter(i => i.governance.responsible === 'À définir').length;
+    const noROICount = enriched.filter(i => !i.roi.inputs).length;
+    const alertsText = noResponsible + ' initiative(s) sans responsable désigné · ' + noROICount + ' initiative(s) sans calcul ROI.';
+
+    // ---- catalog ----
+    const searchLower = (s.search || '').toLowerCase();
+    let filtered = enriched.filter(i => {
+      if (s.filterMacro !== 'Tous' && i.macroDomain !== s.filterMacro) return false;
+      if (s.filterStatus !== 'Tous' && i.status !== s.filterStatus) return false;
+      if (s.filterRisk !== 'Tous' && i.risksData.level !== s.filterRisk) return false;
+      if (s.filterSouverainete !== 'Tous' && i.souverainete !== s.filterSouverainete) return false;
+      if (s.filterMoscow !== 'Tous' && i.prioritization.moscow !== s.filterMoscow) return false;
+      if (searchLower) {
+        const hay = [i.product, i.editor, i.subDomain, i.description.description, i.description.useCase].join(' ').toLowerCase();
+        if (hay.indexOf(searchLower) === -1) return false;
+      }
+      return true;
+    });
+
+    const domainShort = (name) => { const d = DATA.MACRO_DOMAINS.find(x => x.name === name); return d ? d.short : name; };
+
+    const catalogRows = filtered.map(i => ({
+      id: i.id, product: i.product, subDomain: i.subDomain, editor: i.editor,
+      macroDomainShort: domainShort(i.macroDomain),
+      status: i.status, statusBg: i.statusBg, statusFg: i.statusFg,
+      risk: i.risksData.level, riskBg: i.riskBg, riskFg: i.riskFg,
+      priorityBucket: i.priorityBucket, priBg: i.priBg, priFg: i.priFg,
+      moscow: i.prioritization.moscow,
+      useCasePreview: (i.description.useCase || '').slice(0, 110),
+      hasMarker: !!(i.marker && (i.marker.symbol || i.marker.color)),
+      markerColor: (i.marker && i.marker.color) || '#8592A8',
+      markerSymbol: (i.marker && i.marker.symbol) || '●',
+      legendBadges: computeLegendVisual(i).badges,
+      nameBorder: computeLegendVisual(i).border || 'none',
+      nameFill: computeLegendVisual(i).fill || 'transparent',
+      onOpen: () => this.openDetail(i.id),
+    }));
+
+    // ---- domains ----
+    const domainCards = DATA.MACRO_DOMAINS.map(d => {
+      const items = enriched.filter(i => i.macroDomain === d.name);
+      const c = items.length;
+      const deployed = items.filter(i => i.status === 'Déployé').length;
+      const enTest = items.filter(i => i.status === 'En test').length;
+      const aTester = items.filter(i => i.status === 'À tester').length;
+      const nonEval = items.filter(i => i.status === 'Non évalué').length;
+      const maturityPct = c ? Math.round(((deployed * 1 + enTest * 0.6 + aTester * 0.3) / c) * 100) : 0;
+      return { id: d.id, name: d.name, count: c, deployed, enTest, aTester, nonEval, maturityPct, onOpen: () => this.openDomain(d.id) };
+    });
+
+    let currentDomain = { name: '', count: 0, maturityPct: 0 };
+    let currentDomainRows = [];
+    if (s.selectedDomainId) {
+      const dinfo = DATA.MACRO_DOMAINS.find(d => d.id === s.selectedDomainId);
+      const card = domainCards.find(d => d.id === s.selectedDomainId);
+      currentDomain = card || currentDomain;
+      currentDomainRows = enriched.filter(i => i.macroDomain === dinfo.name).map(i => ({
+        id: i.id, product: i.product, editor: i.editor,
+        status: i.status, statusBg: i.statusBg, statusFg: i.statusFg,
+        risk: i.risksData.level, riskBg: i.riskBg, riskFg: i.riskFg,
+        priorityBucket: i.priorityBucket, priBg: i.priBg, priFg: i.priFg,
+        onOpen: () => this.openDetail(i.id),
+      }));
+    }
+
+    // ---- detail ----
+    let current = null;
+    if (s.selectedId && byId[s.selectedId]) {
+      const ini = byId[s.selectedId];
+      let roiCard = null, waterfall = [], curveValuePoints = '', curveCostPoints = '', breakevenLabel = '', roiGaugePct = 50;
+      const hasROI = !!ini.roi.inputs;
+      if (hasROI) {
+        const r = DATA.computeROI(ini.roi.inputs);
+        roiCard = {
+          heuresEconomisees: fmtNum(r.heuresEconomisees, 0) + ' h',
+          valeurAnnuelle: fmtEUR(r.valeurAnnuelle),
+          coutAnnuel: fmtEUR(r.coutAnnuel),
+          coutAnnuelComplet: fmtEUR(r.coutAnnuelComplet),
+          roiNet: fmtEUR(r.roiNet),
+          roiNetComplet: fmtEUR(r.roiNetComplet),
+          roiPct: fmtPct(r.roiPct),
+          roiPctComplet: fmtPct(r.roiPctComplet),
+          payback: fmtPayback(r.payback),
+        };
+        waterfall = this.buildWaterfall(ini.roi.inputs, r);
+        const maxVal = Math.max(...r.monthlySeries.map(m => Math.max(m.cumValue, m.cumCost)), 1);
+        curveValuePoints = this.buildCurvePoints(r.monthlySeries, 'cumValue', maxVal);
+        curveCostPoints = this.buildCurvePoints(r.monthlySeries, 'cumCost', maxVal);
+        breakevenLabel = this.buildBreakevenLabel(r.monthlySeries);
+        roiGaugePct = Math.max(2, Math.min(98, ((r.roiPctComplet + 50) / 200) * 100));
+      }
+      current = Object.assign({}, ini, {
+        statusBg: ini.statusBg, statusFg: ini.statusFg, riskBg: ini.riskBg, riskFg: ini.riskFg, priBg: ini.priBg, priFg: ini.priFg,
+        hasMarker: !!(ini.marker && (ini.marker.symbol || ini.marker.color)),
+        markerColor: (ini.marker && ini.marker.color) || '#8592A8',
+        markerSymbol: (ini.marker && ini.marker.symbol) || '●',
+        legendBadges: computeLegendVisual(ini).badges,
+        nameBorder: computeLegendVisual(ini).border || 'none',
+        nameFill: computeLegendVisual(ini).fill || 'transparent',
+        liveStatusOptions: [
+          { title: 'Produit en France', preview: franceFlagPreviewGlobal, active: !!ini.producedInFrance, onToggle: () => this.toggleLiveFranceFlag(ini.id, 'producedInFrance') },
+          { title: 'Produit en global, à faire produire en France aussi', preview: starFlagPreviewGlobal, active: !!ini.wantsFranceProduction, onToggle: () => this.toggleLiveFranceFlag(ini.id, 'wantsFranceProduction') },
+        ].concat(s.schemaLegend.map(lg => ({
+          title: lg.title,
+          preview: legendSymbolPreview(lg.symbol, lg.color),
+          active: (ini.legendTags || []).includes(lg.id),
+          onToggle: () => this.toggleLiveLegendTag(ini.id, lg.id),
+        }))),
+        priorityScore: ini.priorityScore, priorityBucket: ini.priorityBucket, priorityBreakdown: ini.priorityBreakdown,
+        blockersList: ini.risksData.blockers, hasBlockers: ini.risksData.blockers.length > 0, noBlockers: ini.risksData.blockers.length === 0,
+        watchPointsList: ini.risksData.watchPoints, hasWatchPoints: ini.risksData.watchPoints.length > 0, noWatchPoints: ini.risksData.watchPoints.length === 0,
+        hasROI, noROI: !hasROI, roiCard, waterfall, curveValuePoints, curveCostPoints, breakevenLabel, roiGaugePct,
+        docs: (() => {
+          const items = ini.documentation.items || [];
+          const groups = DATA.DOC_CATEGORIES.map(cat => ({ category: cat, items: items.filter(it => it.category === cat).map(docItemDisplay) })).filter(g => g.items.length > 0);
+          return { groups, hasGroups: groups.length > 0, noItems: items.length === 0 };
+        })(),
+      });
+    }
+
+    // ---- edit / draft ----
+    let draft = s.editingDraft || DATA.newInitiative();
+    const joinArr = (a) => (a || []).join('\n');
+    const handlers = {
+      product: e => this.setDraft(d => d.product = e.target.value),
+      editor: e => this.setDraft(d => d.editor = e.target.value),
+      subDomain: e => this.setDraft(d => d.subDomain = e.target.value),
+      macroDomain: e => this.setDraft(d => d.macroDomain = e.target.value),
+      model: e => this.setDraft(d => d.model = e.target.value),
+      souverainete: e => this.setDraft(d => d.souverainete = e.target.value),
+      status: e => this.setDraft(d => d.status = e.target.value),
+      description: {
+        description: e => this.setDraft(d => d.description.description = e.target.value),
+        useCase: e => this.setDraft(d => d.description.useCase = e.target.value),
+        businessValue: e => this.setDraft(d => d.description.businessValue = e.target.value),
+        targetPopulation: e => this.setDraft(d => d.description.targetPopulation = e.target.value),
+        comments: e => this.setDraft(d => d.description.comments = e.target.value),
+      },
+      governance: {
+        responsible: e => this.setDraft(d => d.governance.responsible = e.target.value),
+        updateDate: e => this.setDraft(d => d.governance.updateDate = e.target.value),
+        source: e => this.setDraft(d => d.governance.source = e.target.value),
+        dependencies: e => this.setDraft(d => d.governance.dependencies = e.target.value),
+        prerequisites: e => this.setDraft(d => d.governance.prerequisites = e.target.value),
+      },
+      prioritization: {
+        moscow: e => this.setDraft(d => d.prioritization.moscow = e.target.value),
+        level: e => this.setDraft(d => d.prioritization.level = e.target.value),
+      },
+      risksData: {
+        level: e => this.setDraft(d => d.risksData.level = e.target.value),
+      },
+      blockersText: e => this.setDraft(d => d.risksData.blockers = e.target.value.split('\n').map(x => x.trim()).filter(Boolean)),
+      watchPointsText: e => this.setDraft(d => d.risksData.watchPoints = e.target.value.split('\n').map(x => x.trim()).filter(Boolean)),
+      franceFlags: {
+        producedInFrance: e => this.setDraft(d => { d.producedInFrance = e.target.checked; if (e.target.checked) d.wantsFranceProduction = false; }),
+        wantsFranceProduction: e => this.setDraft(d => d.wantsFranceProduction = e.target.checked),
+      },
+    };
+
+    const draftMarker = draft.marker || { symbol: '', color: '' };
+    const markerColorOptions = DATA.MARKER_COLORS.map(c => ({
+      color: c,
+      selectedShadow: draftMarker.color === c ? ('0 0 0 2px #FFFFFF, 0 0 0 4px ' + c) : 'none',
+      borderColor: draftMarker.color === c ? c : '#FFFFFF',
+      onClick: () => this.setDraft(d => { if (!d.marker) d.marker = { symbol: '', color: '' }; d.marker.color = c; }),
+    }));
+    const markerSymbolOptions = DATA.MARKER_SYMBOLS.map(sym => ({
+      symbol: sym,
+      bg: draftMarker.symbol === sym ? '#E8EEFC' : '#F7F9FC',
+      borderColor: draftMarker.symbol === sym ? '#2454C7' : '#E2E6ED',
+      onClick: () => this.setDraft(d => { if (!d.marker) d.marker = { symbol: '', color: '' }; d.marker.symbol = sym; }),
+    }));
+    const markerPreviewColor = draftMarker.color || '#B0B9C9';
+    const markerPreviewSymbol = draftMarker.symbol || '●';
+    const onClearMarker = () => this.setDraft(d => d.marker = { symbol: '', color: '' });
+
+    // ---- legend management (edited from the initiative fiche only) ----
+    const draftLegendTags = draft.legendTags || [];
+    const franceFlagPreview = { __html: '<svg width="20" height="14" viewBox="0 0 15 10" style="border-radius:2px;display:block"><rect x="0" y="0" width="5" height="10" fill="#0055A4"></rect><rect x="5" y="0" width="5" height="10" fill="#FFFFFF"></rect><rect x="10" y="0" width="5" height="10" fill="#EF4135"></rect></svg>' };
+    const starFlagPreview = { __html: '<span style="font-size:14px;color:#B9770E;line-height:1">★</span>' };
+    const draftStatusOptions = [
+      { title: 'Produit en France', preview: franceFlagPreview, active: !!draft.producedInFrance, onToggle: handlers.franceFlags.producedInFrance },
+      { title: 'Produit en global, à faire produire en France aussi', preview: starFlagPreview, active: !!draft.wantsFranceProduction, onToggle: handlers.franceFlags.wantsFranceProduction },
+    ].concat(s.schemaLegend.map(lg => ({
+      title: lg.title,
+      preview: legendSymbolPreview(lg.symbol, lg.color),
+      active: draftLegendTags.includes(lg.id),
+      onToggle: () => this.setDraft(d => {
+        const tags = d.legendTags || [];
+        d.legendTags = tags.includes(lg.id) ? tags.filter(t => t !== lg.id) : tags.concat([lg.id]);
+      }),
+    })));
+
+    // ---- ROI calculator view ----
+    const inputs = s.roiInputsScratch || DATA.defaultROIInputs();
+    const roiResultRaw = DATA.computeROI(inputs);
+    const roiResult = {
+      heuresEconomisees: fmtNum(roiResultRaw.heuresEconomisees, 0) + ' h',
+      valeurAnnuelle: fmtEUR(roiResultRaw.valeurAnnuelle),
+      coutAnnuelComplet: fmtEUR(roiResultRaw.coutAnnuelComplet),
+      roiPctComplet: fmtPct(roiResultRaw.roiPctComplet),
+      payback: fmtPayback(roiResultRaw.payback),
+    };
+    const roiGaugePct = Math.max(2, Math.min(98, ((roiResultRaw.roiPctComplet + 50) / 200) * 100));
+    const roiWaterfall = this.buildWaterfall(inputs, roiResultRaw);
+    const maxValScratch = Math.max(...roiResultRaw.monthlySeries.map(m => Math.max(m.cumValue, m.cumCost)), 1);
+    const roiCurveValuePoints = this.buildCurvePoints(roiResultRaw.monthlySeries, 'cumValue', maxValScratch);
+    const roiCurveCostPoints = this.buildCurvePoints(roiResultRaw.monthlySeries, 'cumCost', maxValScratch);
+    const roiBreakevenLabel = this.buildBreakevenLabel(roiResultRaw.monthlySeries);
+
+    const bizFieldDefs = [
+      ['U', "U — Nombre d'utilisateurs"], ['T', 'T — Tâches / utilisateur / mois'], ['M', 'M — Temps moyen par tâche (min)'],
+      ['S', 'S — Gain de temps IA (%)'], ['H', 'H — Coût horaire moyen (€)'], ['R', 'R — Taux réel de valorisation (%)'],
+    ];
+    const costFieldDefs = [
+      ['L', 'L — Coût licence / utilisateur / mois (€)'], ['D', 'D — Coût de déploiement (€)'], ['I', 'I — Coût d\'intégration (€)'],
+      ['C', 'C — Coût de conduite du changement (€)'], ['SUP', 'SUP — Coût annuel de support (€)'],
+    ];
+    const roiBusinessFields = bizFieldDefs.map(([k, label]) => ({ label, value: inputs[k], onChange: e => this.setROIInput(k, e.target.value) }));
+    const roiCostFields = costFieldDefs.map(([k, label]) => ({ label, value: inputs[k], onChange: e => this.setROIInput(k, e.target.value) }));
+
+    const allInitiativesOptions = enriched.map(i => ({ id: i.id, product: i.product }));
+    const contextIni = s.roiContextId ? byId[s.roiContextId] : null;
+    const roiContextLabel = contextIni ? ('Vous calculez le ROI pour : ' + contextIni.product) : 'Simulation libre — associez une initiative pour enregistrer le résultat';
+
+    // ---- portfolio synthesis ----
+    const withROI = enriched.filter(i => i.roi.inputs);
+    let pTotalValeur = 0, pTotalCoutComplet = 0;
+    withROI.forEach(i => {
+      const r = DATA.computeROI(i.roi.inputs);
+      pTotalValeur += r.valeurAnnuelle;
+      pTotalCoutComplet += r.coutAnnuelComplet;
+    });
+    const pRoiNetComplet = pTotalValeur - pTotalCoutComplet;
+    const pRoiPctComplet = pTotalCoutComplet > 0 ? (pRoiNetComplet / pTotalCoutComplet) * 100 : 0;
+    const portfolioTotals = {
+      valeurAnnuelle: fmtEUR(pTotalValeur), coutAnnuelComplet: fmtEUR(pTotalCoutComplet),
+      roiNetComplet: fmtEUR(pRoiNetComplet), roiPctComplet: fmtPct(pRoiPctComplet),
+    };
+    const portfolioCoverageLabel = withROI.length + ' initiative(s) avec ROI calculé sur ' + total + ' au total.';
+
+    const withROISorted = withROI.map(i => {
+      const r = DATA.computeROI(i.roi.inputs);
+      return { id: i.id, product: i.product, roiPct: r.roiPctComplet, roiPctLabel: fmtPct(r.roiPctComplet), onOpen: () => this.openDetail(i.id) };
+    }).sort((a, b) => b.roiPct - a.roiPct);
+    const topROI = withROISorted.slice(0, 5);
+    const lowROI = withROISorted.slice(-5).reverse();
+    const needsAnalysis = enriched.filter(i => !i.roi.inputs).slice(0, 6).map(i => ({ id: i.id, product: i.product, onOpen: () => this.openDetail(i.id) }));
+
+    // ---- risks view ----
+    const riskKpis = [
+      { label: 'Risque élevé', value: enriched.filter(i => i.risksData.level === 'Élevé').length, color: '#C23B3B' },
+      { label: 'Risque moyen', value: enriched.filter(i => i.risksData.level === 'Moyen').length, color: '#B9770E' },
+      { label: 'Risque faible', value: enriched.filter(i => i.risksData.level === 'Faible').length, color: '#1E8E5A' },
+      { label: 'À évaluer', value: enriched.filter(i => i.risksData.level === 'À évaluer').length, color: '#5C6B84' },
+    ];
+    const highRiskList = enriched.filter(i => i.risksData.level === 'Élevé' || i.priorityBucket === 'À clarifier').map(i => ({
+      id: i.id, product: i.product, risk: i.risksData.level, riskBg: i.riskBg, riskFg: i.riskFg,
+      blockersPreview: i.risksData.blockers.length ? i.risksData.blockers.join(' · ') : 'Freins non documentés',
+      onOpen: () => this.openDetail(i.id),
+    }));
+    const blockerFreq = {};
+    enriched.forEach(i => i.risksData.blockers.forEach(b => { blockerFreq[b] = (blockerFreq[b] || 0) + 1; }));
+    const recurringBlockers = Object.keys(blockerFreq).map(k => ({ label: k, count: blockerFreq[k] })).sort((a, b) => b.count - a.count).slice(0, 6);
+    const dependenciesList = enriched.filter(i => i.governance.dependencies).map(i => ({ id: i.id, product: i.product, dependencies: i.governance.dependencies, onOpen: () => this.openDetail(i.id) }));
+    const securityKeywords = ['dlp', 'sécur', 'conform', 'gdpr', 'rgpd'];
+    const securityList = enriched.filter(i => {
+      const hay = (i.description.comments + ' ' + i.risksData.blockers.join(' ') + ' ' + i.risksData.watchPoints.join(' ')).toLowerCase();
+      return securityKeywords.some(k => hay.indexOf(k) !== -1);
+    }).map(i => ({ id: i.id, product: i.product, securityNote: i.description.comments.slice(0, 90), onOpen: () => this.openDetail(i.id) }));
+
+    return {
+      ready: true, notReady: false,
+      navItems,
+      onNewInitiative: () => this.openEdit(null),
+      onOpenDetailedDashboard: () => this.navigate('catalog'),
+      onOpenDashboard: () => this.navigate('dashboard'),
+      todayLabel: '7 juillet 2026',
+
+      isDashboard: s.view === 'dashboard',
+      isCatalog: s.view === 'catalog',
+      isDomains: s.view === 'domains',
+      isDomainDetail: s.view === 'domainDetail',
+      isDetail: s.view === 'detail',
+      isEdit: s.view === 'edit',
+      isROI: s.view === 'roi',
+      isPortfolio: s.view === 'portfolio',
+      isRisks: s.view === 'risks',
+
+      kpiCards, domainBars, statusBars, riskBars, topPriority, toClarify, alertsText,
+      donutSegments, hasTrend, noTrend, trendValuePoints, trendCostPoints, trendValueArea, trendLabels,
+      onOpenDonutWidget, onOpenDomainWidget, stopPropagation,
+      customWidgets, onOpenWidgetForm: () => this.openWidgetForm(),
+      widgetFormOpen: s.widgetForm.open, widgetForm: s.widgetForm,
+      onCloseWidgetForm: () => this.closeWidgetForm(),
+      onWidgetFormTitle: e => this.setWidgetFormField('title', e.target.value),
+      onWidgetFormDimension: e => this.setWidgetFormField('dimension', e.target.value),
+      onSaveWidget: () => this.saveWidget(),
+      widgetFormatOptions, widgetDimensionOptions, widgetColorOptions,
+      expandedWidgetOpen: !!expandedWidget, expandedWidget: expandedWidget || { title: '', subtitle: '', buckets: [] },
+      onCloseExpandedWidget: () => this.closeExpandedWidget(),
+      assistantOpen: s.assistantOpen,
+      onToggleAssistant: () => this.toggleAssistant(),
+      assistantEmpty: s.assistantMessages.length === 0,
+      assistantMessages: s.assistantMessages.map(m => ({
+        text: m.text,
+        align: m.role === 'user' ? 'flex-end' : 'flex-start',
+        bg: m.role === 'user' ? '#2454C7' : '#F0F3F9',
+        fg: m.role === 'user' ? '#FFFFFF' : '#16233E',
+      })),
+      assistantBusy: s.assistantBusy,
+      assistantInput: s.assistantInput,
+      onAssistantInputChange: e => this.setState({ assistantInput: e.target.value }),
+      onAssistantKeyDown: e => { if (e.key === 'Enter') this.sendAssistant(); },
+      onSendAssistant: () => this.sendAssistant(),
+
+      schemaNotEditing: !s.schemaEditingMode,
+      schemaEditing: s.schemaEditingMode,
+      onToggleSchemaEditor: () => this.toggleSchemaEditor(),
+      schemaCategories: (() => {
+        return s.schema.map(cat => ({
+          title: cat.title, subtitle: cat.subtitle,
+          noItems: cat.items.length === 0,
+          dropBg: (s.dragItemId && s.dragFromCatId !== cat.id) ? '#EEF3FD' : 'transparent',
+          onDragOver: e => e.preventDefault(),
+          onDrop: e => { e.preventDefault(); this.onSchemaDrop(cat.id); },
+          items: cat.items.map(id => byId[id]).filter(Boolean).map(ini => {
+            const lv = computeLegendVisual(ini);
+            return {
+              product: ini.product, editor: ini.editor,
+              chipBorder: lv.border || (ini.status === 'Déployé' ? '2px solid #2454C7' : (ini.status === 'En test' ? '2px dashed #2454C7' : '1px solid #E7EAF0')),
+              chipBg: lv.fill || '#F7F9FC',
+              legendBadges: lv.badges,
+              showFrance: !!ini.producedInFrance,
+              showWantsFrance: !ini.producedInFrance && !!ini.wantsFranceProduction,
+              dragOpacity: s.dragItemId === ini.id ? 0.35 : 1,
+              onOpen: () => this.openDetail(ini.id),
+              onDragStart: e => { e.dataTransfer.effectAllowed = 'move'; this.onSchemaDragStart(ini.id, cat.id); },
+              onDragEnd: () => this.onSchemaDragEnd(),
+              onContextMenu: e => { e.preventDefault(); this.openItemMenu(ini.id, e.clientX, e.clientY); },
+            };
+          }),
+        }));
+      })(),
+      schemaLegendView, schemaLegendEdit, onAddLegendItem,
+      itemMenuOpen: s.itemMenu.open,
+      itemMenuX: s.itemMenu.x,
+      itemMenuY: s.itemMenu.y,
+      onCloseItemMenu: () => this.closeItemMenu(),
+      itemMenuOptions: (() => {
+        if (!s.itemMenu.open) return [];
+        return s.schema.filter(cat => !cat.items.includes(s.itemMenu.itemId)).map(cat => ({
+          title: cat.title,
+          onDuplicate: () => this.duplicateSchemaItem(s.itemMenu.itemId, cat.id),
+        }));
+      })(),
+      itemMenuNoOptions: s.itemMenu.open && s.schema.every(cat => cat.items.includes(s.itemMenu.itemId)),
+      schemaDraftCategories: s.schemaDraft.map(cat => {
+        const placedIds = new Set(cat.items);
+        return {
+          title: cat.title, subtitle: cat.subtitle,
+          onTitle: e => this.setSchemaCategoryField(cat.id, 'title', e.target.value),
+          onSubtitle: e => this.setSchemaCategoryField(cat.id, 'subtitle', e.target.value),
+          onDeleteCategory: () => this.removeSchemaCategory(cat.id),
+          items: cat.items.map(id => byId[id]).filter(Boolean).map(ini => ({
+            product: ini.product, editor: ini.editor,
+            onRemove: () => this.removeSchemaItem(cat.id, ini.id),
+          })),
+          addValue: '',
+          onAddChange: e => this.addSchemaItem(cat.id, e.target.value),
+          availableToAdd: enriched.filter(i => !placedIds.has(i.id)).map(i => ({ id: i.id, product: i.product })),
+        };
+      }),
+      onAddSchemaCategory: () => this.addSchemaCategory(),
+      onSaveSchema: () => this.saveSchema(),
+      onCancelSchemaEdit: () => this.cancelSchemaEdit(),
+
+      okrItems: s.okrItems.map((item, idx) => ({
+        title: item.title,
+        description: item.description,
+        onTitle: e => this.updateListItem('okrItems', idx, 'title', e.target.value),
+        onDescription: e => this.updateListItem('okrItems', idx, 'description', e.target.value),
+        onDelete: () => this.removeListItem('okrItems', idx),
+      })),
+      onAddOkrItem: () => this.addListItem('okrItems', { title: 'KR' + (s.okrItems.length), description: '' }),
+
+      ctaItems: s.ctaItems.map((item, idx) => ({
+        title: item.title,
+        description: item.description,
+        onTitle: e => this.updateListItem('ctaItems', idx, 'title', e.target.value),
+        onDescription: e => this.updateListItem('ctaItems', idx, 'description', e.target.value),
+        onGo: () => this.navigate('catalog'),
+        onDelete: () => this.removeListItem('ctaItems', idx),
+      })),
+      onAddCtaItem: () => this.addListItem('ctaItems', { title: 'Nouvelle action', description: '' }),
+
+      filteredCount: filtered.length, totalCount: total,
+      catalogMode: s.catalogMode,
+      isCatalogTable: s.catalogMode === 'table', isCatalogCards: s.catalogMode === 'cards',
+      onSetCatalogTable: () => this.setState({ catalogMode: 'table' }),
+      onSetCatalogCards: () => this.setState({ catalogMode: 'cards' }),
+      tableModeBg: s.catalogMode === 'table' ? '#2454C7' : '#FFFFFF', tableModeFg: s.catalogMode === 'table' ? '#FFFFFF' : '#5C6B84',
+      cardsModeBg: s.catalogMode === 'cards' ? '#2454C7' : '#FFFFFF', cardsModeFg: s.catalogMode === 'cards' ? '#FFFFFF' : '#5C6B84',
+      search: s.search, onSearchChange: e => this.setState({ search: e.target.value }),
+      macroOptions, statusOptions, riskOptions, souvOptions, moscowOptions, levelOptions,
+      filterMacro: s.filterMacro, filterStatus: s.filterStatus, filterRisk: s.filterRisk, filterSouverainete: s.filterSouverainete, filterMoscow: s.filterMoscow,
+      onFilterMacro: e => this.setState({ filterMacro: e.target.value }),
+      onFilterStatus: e => this.setState({ filterStatus: e.target.value }),
+      onFilterRisk: e => this.setState({ filterRisk: e.target.value }),
+      onFilterSouv: e => this.setState({ filterSouverainete: e.target.value }),
+      onFilterMoscow: e => this.setState({ filterMoscow: e.target.value }),
+      catalogRows,
+
+      domainCards,
+      onBackToDomains: () => this.navigate('domains'),
+      currentDomain, currentDomainRows,
+
+      current, selectedId: s.selectedId,
+      onBackToCatalog: () => this.navigate('catalog'),
+      onEditCurrent: () => this.openEdit(s.selectedId),
+      onDeleteCurrent: () => this.deleteCurrent(),
+      showPriorityExplain: s.showPriorityExplain,
+      onTogglePriorityExplain: () => this.setState({ showPriorityExplain: !s.showPriorityExplain }),
+      showROIExplain: s.showROIExplain,
+      onToggleROIExplain: () => this.setState({ showROIExplain: !s.showROIExplain }),
+      onOpenROIForCurrent: () => this.openROIForInitiative(s.selectedId),
+
+      onOpenNewDocForm: () => this.openNewDocForm(),
+      docCategoryOptions: DATA.DOC_CATEGORIES,
+      docForm: Object.assign({}, s.docForm, {
+        formTitle: s.docForm.editingId ? 'Modifier le document' : 'Nouveau document',
+        fileLabel: s.docForm.fileName ? s.docForm.fileName : 'Choisir un fichier…',
+      }),
+      docFormHandlers: {
+        onCategory: e => this.setDocForm('category', e.target.value),
+        onTitle: e => this.setDocForm('title', e.target.value),
+        onDescription: e => this.setDocForm('description', e.target.value),
+        onUrl: e => this.setDocForm('url', e.target.value),
+        onFile: e => { const f = e.target.files && e.target.files[0]; this.onDocFormFile(f); e.target.value = ''; },
+        onValidate: () => this.validateDocForm(),
+        onCancel: () => this.closeDocForm(),
+      },
+      draftDocItems: (draft.documentation.items || []).map(it => Object.assign({}, it, {
+        hasDescription: !!it.description,
+        onEdit: () => this.openEditDocForm(it),
+        onDelete: () => this.deleteDocItem(it.id),
+      })),
+      noDraftDocItems: (draft.documentation.items || []).length === 0,
+
+      editTitle: s.isNew ? 'Nouvelle initiative' : 'Modifier — ' + (draft.product || ''),
+      draft,
+      markerColorOptions, markerSymbolOptions, markerPreviewColor, markerPreviewSymbol, onClearMarker,
+      hasMarkerSet: !!(draftMarker.symbol || draftMarker.color),
+      draftStatusOptions,
+      draftBlockersText: joinArr(draft.risksData.blockers),
+      draftWatchPointsText: joinArr(draft.risksData.watchPoints),
+      handlers,
+      onSaveDraft: () => this.saveDraft(),
+      onCancelEdit: () => this.cancelEdit(),
+
+      roiContextId: s.roiContextId || '', hasROIContext: !!s.roiContextId,
+      onROIContextChange: e => {
+        const id = e.target.value;
+        if (!id) { this.setState({ roiContextId: null }); return; }
+        const ini = this.state.initiatives.find(i => i.id === id);
+        this.setState({ roiContextId: id, roiInputsScratch: (ini.roi && ini.roi.inputs) ? Object.assign({}, ini.roi.inputs) : DATA.defaultROIInputs() });
+      },
+      allInitiativesOptions, roiContextLabel,
+      roiBusinessFields, roiCostFields, roiResult, roiGaugePct, roiWaterfall, roiCurveValuePoints, roiCurveCostPoints, roiBreakevenLabel,
+      onSaveROIToInitiative: () => this.saveROIToInitiative(),
+      showROICalcExplain: s.showROICalcExplain, onToggleROICalcExplain: () => this.setState({ showROICalcExplain: !s.showROICalcExplain }),
+
+      portfolioTotals, portfolioCoverageLabel, topROI, lowROI, needsAnalysis,
+
+      riskKpis, highRiskList, recurringBlockers, dependenciesList, noDependencies: dependenciesList.length === 0,
+      securityList, noSecurity: securityList.length === 0,
+    };
+  }
+}
+
+</script>
+</body>
+</html>
